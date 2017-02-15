@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/LinearLayout_main_group"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:background="@color/white"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/homePage_layout"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/homePage_img"
+                style="@style/main_icon_size"
+                android:focusable="false"
+                android:background="@drawable/home" />
+
+            <TextView
+                android:id="@+id/homePage_txt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/homePage"
+                style="@style/main_textview_size" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/information_layout"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/information_img"
+                style="@style/main_icon_size"
+                android:focusable="false"
+                android:background="@drawable/news" />
+
+            <TextView
+                android:id="@+id/information_txt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/information"
+                style="@style/main_textview_size" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/moudle_layout"
+            android:layout_width="0dp"
+            android:gravity="center"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/moudle_img"
+                style="@style/main_icon_size"
+                android:focusable="false"
+                android:background="@drawable/life" />
+
+            <TextView
+                android:id="@+id/moudle_txt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/moudle"
+                style="@style/main_textview_size" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/find_layout"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:clickable="true"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/find_img"
+                style="@style/main_icon_size"
+                android:focusable="false"
+                android:background="@drawable/find" />
+
+            <TextView
+                android:id="@+id/find_txt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/find"
+                style="@style/main_textview_size" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/my_layout"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:clickable="true"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/my_img"
+                style="@style/main_icon_size"
+                android:focusable="false"
+                android:background="@drawable/my" />
+
+            <TextView
+                android:id="@+id/my_txt"
+                android:text="@string/my"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/main_textview_size" />
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_above="@+id/LinearLayout_main_group"
+        android:background="@color/gray" />
+</LinearLayout>

@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">掌心民生</string>
+    <string name="homePage">首页</string>
+    <string name="information">资讯</string>
+    <string name="moudle">模块</string>
+    <string name="find">发现</string>
+    <string name="my">我的</string>
+    <string name="goLogin">去登录</string>
+    <string name="customize">定制</string>
+    <string name="news">新闻</string>
+    <string name="picsay">图说</string>
+    <string name="videolisten">视听</string>
+    <string name="login_title">登录掌兴</string>
+    <string name="sina_login">新浪微博登录</string>
+    <string name="tencentweibo_login">腾讯微博登录</string>
+    <string name="wechat_login">微信登录</string>
+    <string name="qq_login">QQ登录</string>
+    <string name="phone_login">用手机号码登录</string>
+    <string name="shake">摇一摇</string>
+    <string name="rebelion">报料</string>
+    <string name="scan">扫一扫</string>
+    <string name="search">搜索</string>
+    <string name="jump">跳过</string>
+
+    <string name="umeng_sharebutton_copy">复制文本</string>
+    <string name="umeng_sharebutton_copyurl">复制连接</string>
+</resources>
