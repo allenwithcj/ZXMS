@@ -1,17 +1,21 @@
 package com.zxms;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.view.Window;
 
 import com.zxms.utils.ActivityControl;
 
-public class BaseActivity extends AppCompatActivity {
+public class BaseActivity extends AppCompatActivity implements View.OnClickListener{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_base);
         ActivityControl.addActivity(this);
+
     }
 
     @Override
@@ -19,4 +23,10 @@ public class BaseActivity extends AppCompatActivity {
         super.onDestroy();
         ActivityControl.removeActivity(this);
     }
+
+    @Override
+    public void onClick(View v) {
+
+    }
+
 }

@@ -8,4 +8,8 @@
     <color name="blue">#23aee6</color>
     <color name="gray">#DCDCDC</color>
     <color name="darkblue">#3286a7</color>
+    <color name="scan_corner_color">#0effc2</color>
+    <color name="actionsheet_blue">#037BFF</color>
+    <color name="actionsheet_red">#FD4A2E</color>
+    <color name="actionsheet_gray">#8F8F8F</color>
 </resources>

@@ -2,7 +2,6 @@ package com.zxms.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
@@ -17,7 +16,7 @@ import com.zxms.R;
  * Created by hp on 2017/1/14.
  * 资讯
  */
-public class InformationFragment extends Fragment implements View.OnClickListener {
+public class InformationFragment extends BaseFragment {
     private Button news_btn, picsay_btn, videolisten_btn;
     private FragmentManager fragmentManager;
     private NewsFragment newsFragment;

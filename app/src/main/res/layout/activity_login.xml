@@ -15,7 +15,7 @@
             style="@style/cancel_icon_size"
             android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"
-            android:background="@drawable/longin_cancel_btn" />
+            android:background="@drawable/cancel_btn" />
 
         <ImageView
             android:id="@+id/user_img"

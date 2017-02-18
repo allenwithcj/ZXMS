@@ -1,13 +1,24 @@
 package com.zxms.fragment;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -27,28 +38,39 @@ import com.umeng.socialize.bean.SHARE_MEDIA;
 import com.umeng.socialize.shareboard.ShareBoardConfig;
 import com.umeng.socialize.shareboard.SnsPlatform;
 import com.umeng.socialize.utils.ShareBoardlistener;
+import com.zxms.ClipImageActivity;
 import com.zxms.LoginActivity;
 import com.zxms.R;
 import com.zxms.model.Defaultcontent;
 import com.zxms.model.My;
 import com.zxms.utils.AsyncImageLoader;
 import com.zxms.utils.Constants;
+import com.zxms.utils.Tools;
+import com.zxms.view.ActionSheetDialog;
+import com.zxms.view.CircleImageView;
 
+import java.io.File;
 import java.util.LinkedList;
 import java.util.Map;
+
 
 /**
  * Created by hp on 2017/1/14.
  * 我的
  */
-public class MyFragment extends Fragment implements View.OnClickListener{
+public class MyFragment extends BaseFragment implements View.OnClickListener{
     private static final String TAG = "MyFragment";
+    private static final int REQUEST_CAPTURE = 100;//请求相机
+    private static final int REQUEST_PICK = 101;//请求相册
+    private static final int REQUEST_CROP_PHOTO = 102;//请求截图
+    private static final int WRITE_EXTERNAL_STORAGE_REQUEST_CODE = 103;//请存储求外部读写
     private String[] names = {"我的收藏", "积分查询", "今日任务", "我的评论", "我的报料",
             "我的互助", "商城订单", "积分兑换单", "我的银行", "我的打车", "我的医院"};
     private int[] imgs = {R.drawable.mine_unlogin_favor, R.drawable.mine_unlogin_jifen, R.drawable.mine_unlogin_task, R.drawable.mine_unlogin_comment,
             R.drawable.mine_unlogin_submit, R.drawable.mine_unlogin_help, R.drawable.mine_unlogin_order, R.drawable.mine_unlogin_duihuan, R.drawable.mine_unlogin_bank,
             R.drawable.mine_unlogin_taxi, R.drawable.mine_unlogin_hospital};
-    private ImageView set, user_img;
+    private ImageView set;
+    private CircleImageView user_img;
     private Button goLogin_btn;
     private RecyclerView recyclerView;
     private MyAdapter adapter;
@@ -58,6 +80,7 @@ public class MyFragment extends Fragment implements View.OnClickListener{
     private UMShareListener mShareListener;
     private ShareAction mShareAction;
     private LoginReciver loginReciver;
+    private File tempFile;
 
     @Nullable
     @Override
@@ -66,15 +89,20 @@ public class MyFragment extends Fragment implements View.OnClickListener{
         asyncImageLoader = new AsyncImageLoader();
         mShareListener = new CustomShareListener();
         loginReciver = new LoginReciver();
+        //广播注册
         getActivity().registerReceiver(loginReciver, new IntentFilter(Constants.THIRDPARTYLOGIN));
         initDate();
         initView(view);
         return view;
     }
 
+    /**
+     * 控件初始化
+     * @param view
+     */
     private void initView(View view) {
         set = (ImageView) view.findViewById(R.id.set);
-        user_img = (ImageView) view.findViewById(R.id.user_img);
+        user_img = (CircleImageView) view.findViewById(R.id.user_img);
         goLogin_btn = (Button) view.findViewById(R.id.goLogin_btn);
         name = (TextView) view.findViewById(R.id.name);
         recyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
@@ -109,7 +137,9 @@ public class MyFragment extends Fragment implements View.OnClickListener{
                 });
     }
 
-
+    /**
+     * 宫格数据数据初始化
+     */
     private void initDate() {
         myalls = new LinkedList<My>();
         for (int i = 0; i < names.length; i++) {
@@ -140,12 +170,58 @@ public class MyFragment extends Fragment implements View.OnClickListener{
 
     }
 
+    /**
+     * 登录：判断是否已经登录
+     * 1.登录成功，点击头像替换头像
+     * 2.没有登录，点击则跳转到登录界面
+     */
     private void goLogin() {
         if(!Constants.isLogin){
             Intent intent = new Intent();
             intent.setClass(getActivity(), LoginActivity.class);
             startActivity(intent);
             getActivity().overridePendingTransition(R.anim.in_right,R.anim.out_left);
+        }else{
+            new ActionSheetDialog(getActivity()).builder()
+                    .setTitle("头像")
+                    .setCancelable(false)
+                    .setCanceledOnTouchOutside(false)
+                    .addSheetItem("相册选取", null, new ActionSheetDialog.OnSheetItemClickListener() {
+
+                        @Override
+                        public void onClick(int which) {
+                            // 相册中选择
+                            //权限判断
+                            if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                    != PackageManager.PERMISSION_GRANTED) {
+                                //申请READ_EXTERNAL_STORAGE权限
+                                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                        WRITE_EXTERNAL_STORAGE_REQUEST_CODE);
+                            } else {
+                                //跳转到调用系统图库
+                                gotoPhoto();
+                            }
+                        }
+                    })
+                    .addSheetItem("相机拍照", null, new ActionSheetDialog.OnSheetItemClickListener() {
+
+                        @Override
+                        public void onClick(int which) {
+//                            //权限判断
+//                            if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA)
+//                                    != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(getActivity(),
+//                                    Manifest.permission.WRITE_EXTERNAL_STORAGE)
+//                                    != PackageManager.PERMISSION_GRANTED) {
+//                                //申请CAMERA权限和WRITE_EXTERNAL_STORAGE权限
+//                                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CAMERA,
+//                                        Manifest.permission.WRITE_EXTERNAL_STORAGE},
+//                                        REQUEST_CAMERA);
+//                            } else {
+//                                //跳转到调用系统相机
+                               gotoCarema();
+//                            }
+                        }
+                    }).show();
         }
     }
 
@@ -202,6 +278,9 @@ public class MyFragment extends Fragment implements View.OnClickListener{
         }
     }
 
+    /**
+     * 分享和收藏监听
+     */
     private class CustomShareListener implements UMShareListener{
 
         @Override
@@ -232,15 +311,22 @@ public class MyFragment extends Fragment implements View.OnClickListener{
         }
     }
 
+    /**
+     * 监听第三方登录成功后获取用户信息：头像和昵称
+     */
     UMAuthListener authListener = new UMAuthListener(){
 
         @Override
         public void onComplete(SHARE_MEDIA share_media, int i, Map<String, String> map) {
-            Log.d("authListener","查询用户信息监听:"+map);
             if(map != null){
+                Toast.makeText(getActivity(), "登录成功", Toast.LENGTH_LONG).show();
+                Constants.isLogin = true;
                 goLogin_btn.setVisibility(View.GONE);
                 name.setVisibility(View.VISIBLE);
                 name.setText(map.get("name"));
+                Constants.userName = name.getText().toString();
+                tempFile = new File(Tools.checkDirPath(Environment.getExternalStorageDirectory().getPath() + "/image/"),
+                        Constants.userName + ".jpg");
                 asyncImageLoader.loadDrawable(map.get("iconurl"), new AsyncImageLoader.ImageCallback() {
                     @Override
                     public void imageLoaded(Drawable imageDrawable, String imageUrl) {
@@ -262,12 +348,13 @@ public class MyFragment extends Fragment implements View.OnClickListener{
         }
     };
 
-
+    /**
+     * 接收第三方登录后发送的广播
+     */
     class LoginReciver extends BroadcastReceiver{
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("LoginReciver","===收到广播===");
             if(intent.getAction() == Constants.THIRDPARTYLOGIN){
                 SHARE_MEDIA share_media = (SHARE_MEDIA)intent.getSerializableExtra("share_media");
                 UMShareAPI.get(getActivity()).getPlatformInfo(getActivity(),share_media,authListener);
@@ -280,6 +367,128 @@ public class MyFragment extends Fragment implements View.OnClickListener{
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         UMShareAPI.get(getActivity()).onActivityResult(requestCode, resultCode, data);
+        if (resultCode == getActivity().RESULT_OK) {
+                switch (requestCode) {
+                    case REQUEST_CAPTURE: //调用系统相机返回
+                        if (data != null) {
+                            gotoClipActivity(Uri.fromFile(tempFile));
+                        }
+                        break;
+                    case REQUEST_PICK:  //调用系统相册返回
+                        if (data != null) {
+                            Uri uri = data.getData();
+                            gotoClipActivity(uri);
+                        }
+                        break;
+                    case REQUEST_CROP_PHOTO:  //剪切图片返回
+                        if (data != null) {
+                            final Uri uri = data.getData();
+                            if (uri == null) {
+                                return;
+                            }
+                            String cropImagePath = getRealFilePathFromUri(getActivity(), uri);
+                            Bitmap bitMap = BitmapFactory.decodeFile(cropImagePath);
+                            user_img.setImageBitmap(bitMap);
+                            //此处后面可以将bitMap转为二进制上传后台网络
+                            //......
+                        }
+
+                        break;
+                }
+            }
+
+    }
+
+    /**
+     * 打开截图界面
+     *
+     * @param uri
+     */
+    public void gotoClipActivity(Uri uri) {
+        if (uri == null) {
+            return;
+        }
+        Intent intent = new Intent();
+        intent.setClass(getActivity(), ClipImageActivity.class);
+        intent.setData(uri);
+        startActivityForResult(intent, REQUEST_CROP_PHOTO);
+    }
+
+    /**
+     * 根据Uri返回文件绝对路径
+     * 兼容了file:///开头的 和 content://开头的情况
+     *
+     * @param context
+     * @param uri
+     * @return the file path or null
+     */
+    public static String getRealFilePathFromUri(final Context context, final Uri uri) {
+        if (null == uri) return null;
+        final String scheme = uri.getScheme();
+        String data = null;
+        if (scheme == null)
+            data = uri.getPath();
+        else if (ContentResolver.SCHEME_FILE.equals(scheme)) {
+            data = uri.getPath();
+        } else if (ContentResolver.SCHEME_CONTENT.equals(scheme)) {
+            Cursor cursor = context.getContentResolver().query(uri, new String[]{MediaStore.Images.ImageColumns.DATA}, null, null, null);
+            if (null != cursor) {
+                if (cursor.moveToFirst()) {
+                    int index = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+                    if (index > -1) {
+                        data = cursor.getString(index);
+                    }
+                }
+                cursor.close();
+            }
+        }
+        return data;
+    }
+
+    /**
+     * 外部存储权限申请返回
+     *
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        if (requestCode == REQUEST_CAMERA ||
+//                requestCode == WRITE_EXTERNAL_STORAGE_REQUEST_CODE) {
+//            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                // Permission Granted
+//                gotoCarema();
+//            } else {
+//                // Permission Denied
+//            }
+//        } else
+        if (requestCode == WRITE_EXTERNAL_STORAGE_REQUEST_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission Granted
+                gotoPhoto();
+            } else {
+                // Permission Denied
+            }
+        }
+    }
+
+    private void gotoPhoto() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(Intent.createChooser(intent, "请选择图片"), REQUEST_PICK);
+    }
+
+    private void gotoCarema() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if(android.os.Build.VERSION.SDK_INT < 24){
+            intent.putExtra(MediaStore.EXTRA_OUTPUT,Uri.fromFile(tempFile));
+        }else{
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(getActivity(),getActivity().getPackageName()+ ".provider", tempFile));
+        }
+        if(intent.resolveActivity(getActivity().getPackageManager()) != null){
+            startActivityForResult(intent, REQUEST_CAPTURE);
+        }
     }
 
     @Override
@@ -288,4 +497,5 @@ public class MyFragment extends Fragment implements View.OnClickListener{
         UMShareAPI.get(getActivity()).release();
         getActivity().unregisterReceiver(loginReciver);
     }
+
 }

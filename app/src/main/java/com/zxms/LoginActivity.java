@@ -73,9 +73,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         @Override
         public void onComplete(SHARE_MEDIA share_media, int i, Map<String, String> map) {
-            Toast.makeText(context, "登录成功", Toast.LENGTH_LONG).show();
-            //发送广播
-            Constants.isLogin = true;
             sendBroadCast(share_media);
         }
 

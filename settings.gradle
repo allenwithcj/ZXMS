@@ -1,1 +1,1 @@
-include ':app',':MyDaoGenerator'
+include ':app',':MyDaoGenerator',':lib-zxing'

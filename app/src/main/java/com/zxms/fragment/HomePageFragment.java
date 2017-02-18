@@ -1,14 +1,19 @@
 package com.zxms.fragment;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -23,14 +28,16 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.zxms.CityActivity;
+import com.zxms.MyCaptureActivity;
 import com.zxms.R;
 import com.zxms.model.HomePageMenu;
 import com.zxms.utils.AsyncImageLoader;
 import com.zxms.utils.Tools;
+import com.zxms.zxing.activity.CodeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +46,10 @@ import java.util.List;
  * Created by hp on 2017/1/14.
  * 首页
  */
-public class HomePageFragment extends Fragment implements View.OnClickListener {
+public class HomePageFragment extends BaseFragment implements
+        SwipeRefreshLayout.OnRefreshListener{
+    private static final String TAG = "HomePageFragment";
+    public static final int LOCAL_CITY = 1001;
     private ViewPager viewPager_adv;
     private ViewPager viewPager_menu;
     private MyAdvViewPagerAdapter advAdapter;
@@ -76,9 +86,12 @@ public class HomePageFragment extends Fragment implements View.OnClickListener {
     private RotateAnimation rotate_right,rotate_left;
     private LinearLayout shake_layout,rebelion_layout,scan_layout,search_layout;
     private PopupWindow popupWindow;
-    private ScrollView scrollView;
+    private SwipeRefreshLayout swipeLayout;
     private RelativeLayout title_layout;
     private View popuView;
+    public static final int REQUEST_CAMERA = 101;//照相机权限
+    public static final int REQUEST_CODE = 102;//选择相册
+    private TextView city;
 
     private Handler mHandler = new Handler(){
         @Override
@@ -166,8 +179,9 @@ public class HomePageFragment extends Fragment implements View.OnClickListener {
         viewPager_adv = (ViewPager) view.findViewById(R.id.view_pager_adv);
         viewPager_menu = (ViewPager) view.findViewById(R.id.view_pager_menu);
         menu_add_btn = (ImageView) view.findViewById(R.id.menu_add_btn);
+        city = (TextView) view.findViewById(R.id.city);
 
-        scrollView = (ScrollView) view.findViewById(R.id.scrollView);
+        swipeLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeLayout);
         title_layout = (RelativeLayout) view.findViewById(R.id.title_layout);
 
         advAdapter = new MyAdvViewPagerAdapter(advViewList);
@@ -202,6 +216,7 @@ public class HomePageFragment extends Fragment implements View.OnClickListener {
         rebelion_layout.setOnClickListener(this);
         scan_layout.setOnClickListener(this);
         search_layout.setOnClickListener(this);
+        city.setOnClickListener(this);
 
         popuView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -252,21 +267,33 @@ public class HomePageFragment extends Fragment implements View.OnClickListener {
     }
 
     @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.menu_add_btn:
-                if(isOpenClick){
-                    showPopuView();
-                }else{
-                    dismissPopuView();
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        /**
+         * 处理二维码扫描结果
+         */
+        if (requestCode == REQUEST_CODE) {
+            //处理扫描结果（在界面上显示）
+            if (null != data) {
+                Bundle bundle = data.getExtras();
+                if (bundle == null) {
+                    return;
                 }
-                break;
-        }
+                if (bundle.getInt(CodeUtils.RESULT_TYPE) == CodeUtils.RESULT_SUCCESS) {
+                    String result = bundle.getString(CodeUtils.RESULT_STRING);
+                    Toast.makeText(getActivity(), "解析结果:" + result, Toast.LENGTH_LONG).show();
+                } else if (bundle.getInt(CodeUtils.RESULT_TYPE) == CodeUtils.RESULT_FAILED) {
+                    Toast.makeText(getActivity(), "解析二维码失败", Toast.LENGTH_LONG).show();
+                }
+            }
+        }else if(requestCode == LOCAL_CITY){
+            if(null != data){
+                city.setText(data.getExtras().getString("city"));
+            }
 
+        }
     }
 
-
-    private void startRotateAnimation(RotateAnimation animation,ImageView menu_add_btn){
+    private void startRotateAnimation(RotateAnimation animation, ImageView menu_add_btn){
         animation.setDuration(500);
         animation.setFillAfter(true);
         menu_add_btn.startAnimation(animation);
@@ -276,7 +303,7 @@ public class HomePageFragment extends Fragment implements View.OnClickListener {
         isOpenClick = false;
         startRotateAnimation(rotate_right,menu_add_btn);
         popupWindow.setAnimationStyle(R.style.popView_animation_style);
-        popupWindow.showAtLocation(scrollView,Gravity.BOTTOM,0,0);
+        popupWindow.showAtLocation(swipeLayout,Gravity.BOTTOM,0,0);
 
     }
 
@@ -285,6 +312,42 @@ public class HomePageFragment extends Fragment implements View.OnClickListener {
         startRotateAnimation(rotate_left,menu_add_btn);
         if(popupWindow.isShowing()){
             popupWindow.dismiss();
+        }
+    }
+
+    @Override
+    public void onRefresh() {
+
+    }
+
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.city:
+                Intent intent = new Intent(getActivity(), CityActivity.class);
+                startActivityForResult(intent,LOCAL_CITY);
+                getActivity().overridePendingTransition(R.anim.in_right,R.anim.out_left);
+                break;
+            case R.id.menu_add_btn:
+                if(isOpenClick){
+                    showPopuView();
+                }else{
+                    dismissPopuView();
+                }
+                break;
+            case R.id.scan_layout:
+                dismissPopuView();
+                //权限判断
+                if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    //申请CAMERA权限
+                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CAMERA},
+                            REQUEST_CAMERA);
+                } else {
+                    gotoCarema();
+                }
+                break;
         }
     }
 
@@ -484,4 +547,30 @@ public class HomePageFragment extends Fragment implements View.OnClickListener {
         super.onResume();
         mHandler.sendEmptyMessageDelayed(0,2000);
     }
+
+    /**
+     * 外部存储权限申请返回
+     *
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CAMERA) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission Granted
+                gotoCarema();
+            } else {
+                // Permission Denied
+            }
+        }
+}
+    private void gotoCarema() {
+        Intent intent = new Intent(getActivity(), MyCaptureActivity.class);
+        startActivityForResult(intent, REQUEST_CODE);
+    }
+
+
 }

@@ -1,7 +1,10 @@
 package com.zxms.utils;
 
 import android.content.Context;
+import android.os.Environment;
+import android.text.TextUtils;
 
+import java.io.File;
 import java.lang.reflect.Field;
 
 /**
@@ -29,5 +32,32 @@ public class Tools {
             e.printStackTrace();
         }
         return statusBarHeight;
+    }
+
+    /**
+     * 检查是否存在SDCard
+     * @return
+     */
+    public static boolean hasSdcard(){
+        String state = Environment.getExternalStorageState();
+        if(state.equals(Environment.MEDIA_MOUNTED)){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    /**
+     * 检查文件是否存在
+     */
+    public static String checkDirPath(String dirPath) {
+        if (TextUtils.isEmpty(dirPath)) {
+            return "";
+        }
+        File dir = new File(dirPath);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        return dirPath;
     }
 }

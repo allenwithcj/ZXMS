@@ -20,7 +20,7 @@ import com.zxms.utils.ActivityControl;
 import com.zxms.utils.Constants;
 
 
-public class MainActivity extends BaseActivity implements View.OnClickListener {
+public class MainActivity extends BaseActivity{
     private LinearLayout homePage_layout, information_layout, moudle_layout, find_layout, my_layout;
     private ImageView homePage_img, information_img, moudle_img, find_img, my_img;
     private TextView homePage_txt, information_txt, moudle_txt, find_txt, my_txt;
@@ -213,4 +213,5 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         }
         return  false;
     }
+
 }

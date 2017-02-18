@@ -2,7 +2,6 @@ package com.zxms.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +18,7 @@ import java.util.List;
 /**
  * Created by hp on 2017/1/14.
  */
-public class NewsFragment extends Fragment {
+public class NewsFragment extends BaseFragment {
     private String[] titles = {"头条", "无锡", "约慧", "生活", "视频", "天下", "微闻", "新华社", "博报"};
     private HorizontalScrollMenu horizontalScrollMenu;
     private MenuAdapter menuAdapter;

@@ -21,7 +21,16 @@
     <string name="scan">扫一扫</string>
     <string name="search">搜索</string>
     <string name="jump">跳过</string>
-
+    <string name="city">城市</string>
+    <string name="choice_city">选择城市</string>
+    <string name="input_city">请输入城市</string>
+    <string name="hot_city">热门城市</string>
+    <string name="current_city">当前定位城市</string>
+    <string name="mian_city">主要城市</string>
+    <!--umeng-->
     <string name="umeng_sharebutton_copy">复制文本</string>
     <string name="umeng_sharebutton_copyurl">复制连接</string>
+    <!--zxing-->
+    <string name="flash_light">闪光灯</string>
+    <string name="choice_from_pic">相册</string>
 </resources>

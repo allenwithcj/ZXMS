@@ -3,7 +3,6 @@ package com.zxms.fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -27,7 +26,7 @@ import java.util.List;
  * Created by hp on 2017/1/14.
  * 模块
  */
-public class ModuleFragment extends Fragment {
+public class ModuleFragment extends BaseFragment {
     private String[] titles = {"资讯", "视听"};
     private String[] moduleName1 = {"新闻", "专题"};
     private int[] moduleImg1 = {R.drawable.module_icon_news, R.drawable.module_icon_topic};

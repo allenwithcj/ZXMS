@@ -31,12 +31,26 @@
                 android:layout_centerVertical="true"
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="10dp" />
+
+            <TextView
+                android:text="@string/city"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/city"
+                android:textColor="@color/white"
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:layout_marginLeft="10dp" />
+
         </RelativeLayout>
 
-            <ScrollView
-                android:id="@+id/scrollView"
+            <android.support.v4.widget.SwipeRefreshLayout
+                android:id="@+id/swipeLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -63,7 +77,7 @@
                             android:layout_height="200dp"
                             android:gravity="center"
                             android:orientation="horizontal"
-                            android:layout_alignParentBottom="true"
+                            android:layout_alignParentTop="true"
                             android:layout_alignParentLeft="true"
                             android:layout_alignParentStart="true" />
                     </RelativeLayout>
@@ -98,7 +112,8 @@
                         android:layout_height="fill_parent"
                         android:background="@color/black" />
                 </LinearLayout>
-            </ScrollView>
+                </ScrollView>
+            </android.support.v4.widget.SwipeRefreshLayout>
     </LinearLayout>
 
 </LinearLayout>
