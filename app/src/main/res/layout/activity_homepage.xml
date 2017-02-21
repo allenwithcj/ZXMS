@@ -26,7 +26,7 @@
 
             <ImageView
                 android:id="@+id/menu_add_btn"
-                style="@style/main_icon_size"
+                style="@style/add_icon_size"
                 android:background="@drawable/nav_icon_add"
                 android:layout_centerVertical="true"
                 android:layout_alignParentRight="true"
