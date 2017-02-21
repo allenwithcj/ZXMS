@@ -16,60 +16,34 @@ import com.zxms.utils.Constants;
 
 import java.util.Map;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 public class LoginActivity extends BaseActivity implements View.OnClickListener {
-    private ImageView cancel_btn;
-    private RelativeLayout sina_login_layout, tencent_login_layout, wechat_login_layout,
-            QQ_login_layout, phone_login_layout;
+    @BindView(R.id.cancel_btn)
+    ImageView mCancelBtn;
+    @BindView(R.id.sina_login_layout)
+    RelativeLayout mSinaLoginLayout;
+    @BindView(R.id.tencent_login_layout)
+    RelativeLayout mTencentLoginLayout;
+    @BindView(R.id.wechat_login_layout)
+    RelativeLayout mWechatLoginLayout;
+    @BindView(R.id.QQ_login_layout)
+    RelativeLayout mQQLoginLayout;
+    @BindView(R.id.phone_login_layout)
+    RelativeLayout mPhoneLoginLayout;
     private Context context;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        ButterKnife.bind(this);
         context = LoginActivity.this;
-        initView();
     }
 
-    private void initView() {
-        cancel_btn = (ImageView) findViewById(R.id.cancel_btn);
-        sina_login_layout = (RelativeLayout) findViewById(R.id.sina_login_layout);
-        tencent_login_layout = (RelativeLayout) findViewById(R.id.tencent_login_layout);
-        wechat_login_layout = (RelativeLayout) findViewById(R.id.wechat_login_layout);
-        QQ_login_layout = (RelativeLayout) findViewById(R.id.QQ_login_layout);
-        phone_login_layout = (RelativeLayout) findViewById(R.id.phone_login_layout);
-
-        cancel_btn.setOnClickListener(this);
-        sina_login_layout.setOnClickListener(this);
-        tencent_login_layout.setOnClickListener(this);
-        wechat_login_layout.setOnClickListener(this);
-        QQ_login_layout.setOnClickListener(this);
-        phone_login_layout.setOnClickListener(this);
-
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.sina_login_layout:
-                UMShareAPI.get(context).doOauthVerify(this, SHARE_MEDIA.SINA, authListener);
-                break;
-            case R.id.tencent_login_layout:
-                UMShareAPI.get(context).doOauthVerify(this, SHARE_MEDIA.TENCENT, authListener);
-                break;
-            case R.id.wechat_login_layout:
-                UMShareAPI.get(context).doOauthVerify(this, SHARE_MEDIA.WEIXIN, authListener);
-                break;
-            case R.id.QQ_login_layout:
-                UMShareAPI.get(context).doOauthVerify(this, SHARE_MEDIA.QQ, authListener);
-                break;
-            case R.id.cancel_btn:
-                finish();
-                overridePendingTransition(R.anim.in_left, R.anim.out_right);
-                break;
-        }
-    }
-
-    UMAuthListener authListener = new UMAuthListener(){
+    UMAuthListener authListener = new UMAuthListener() {
 
         @Override
         public void onComplete(SHARE_MEDIA share_media, int i, Map<String, String> map) {
@@ -93,7 +67,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         intent.putExtra("share_media", share_media);
         sendBroadcast(intent);
         finish();
-        overridePendingTransition(R.anim.in_right,R.anim.out_left);
+        overridePendingTransition(R.anim.in_right, R.anim.out_left);
     }
 
     @Override
@@ -114,4 +88,25 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         UMShareAPI.get(this).onSaveInstanceState(outState);
     }
 
+    @OnClick({R.id.cancel_btn, R.id.sina_login_layout, R.id.tencent_login_layout, R.id.wechat_login_layout, R.id.QQ_login_layout, R.id.phone_login_layout})
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.sina_login_layout:
+                UMShareAPI.get(context).doOauthVerify(this, SHARE_MEDIA.SINA, authListener);
+                break;
+            case R.id.tencent_login_layout:
+                UMShareAPI.get(context).doOauthVerify(this, SHARE_MEDIA.TENCENT, authListener);
+                break;
+            case R.id.wechat_login_layout:
+                UMShareAPI.get(context).doOauthVerify(this, SHARE_MEDIA.WEIXIN, authListener);
+                break;
+            case R.id.QQ_login_layout:
+                UMShareAPI.get(context).doOauthVerify(this, SHARE_MEDIA.QQ, authListener);
+                break;
+            case R.id.cancel_btn:
+                finish();
+                overridePendingTransition(R.anim.in_left, R.anim.out_right);
+                break;
+        }
+    }
 }

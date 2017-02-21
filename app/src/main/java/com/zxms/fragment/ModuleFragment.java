@@ -3,6 +3,7 @@ package com.zxms.fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -22,25 +23,35 @@ import com.zxms.model.ModuleContent;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Unbinder;
+
 /**
  * Created by hp on 2017/1/14.
  * 模块
  */
-public class ModuleFragment extends BaseFragment {
+public class ModuleFragment extends Fragment {
+    @BindView(R.id.recyclerView)
+    RecyclerView mRecyclerView;
+
     private String[] titles = {"资讯", "视听"};
     private String[] moduleName1 = {"新闻", "专题"};
     private int[] moduleImg1 = {R.drawable.module_icon_news, R.drawable.module_icon_topic};
     private String[] moduleName2 = {"直播", "点播", "4G影院"};
     private int[] moduleImg2 = {R.drawable.module_icon_live, R.drawable.module_icon_vod, R.drawable.module_icon_4g};
-    private RecyclerView recyclerView;
     private MyMoudleAdapter adapter;
     private MyMoudleItemAdapter itemAdapter;
     private List<Module> moduleList;
+    private View view;
+    private Unbinder unbinder;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_module, container, false);
+        unbinder = ButterKnife.bind(this, view);
         initDate(view);
         initView(view);
         return view;
@@ -48,8 +59,6 @@ public class ModuleFragment extends BaseFragment {
 
     /**
      * 加载数据
-     *
-     * @param view
      */
     private void initDate(View view) {
         List<ModuleContent> mod1 = new ArrayList<ModuleContent>();
@@ -77,16 +86,27 @@ public class ModuleFragment extends BaseFragment {
 
     /**
      * 初始化组件
-     *
-     * @param view
      */
     private void initView(View view) {
-        recyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(linearLayoutManager);
+        mRecyclerView.setLayoutManager(linearLayoutManager);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         adapter = new MyMoudleAdapter(moduleList);
-        recyclerView.setAdapter(adapter);
+        mRecyclerView.setAdapter(adapter);
+    }
+
+    @OnClick(R.id.recyclerView)
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.recyclerView:
+                break;
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 
     public class MyMoudleAdapter extends RecyclerView.Adapter<MyViewHolder> {
@@ -114,7 +134,7 @@ public class ModuleFragment extends BaseFragment {
             holder.gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Toast.makeText(getActivity(),module.getModuleContents().get(position).getName(),Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), module.getModuleContents().get(position).getName(), Toast.LENGTH_SHORT).show();
                 }
             });
         }

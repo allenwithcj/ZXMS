@@ -17,8 +17,13 @@ import android.widget.ImageView;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
 
+import com.baidu.location.BDLocation;
+import com.baidu.location.BDLocationListener;
+import com.zxms.application.MyApplication;
+import com.zxms.baidu.service.LocationService;
 import com.zxms.fragment.HomePageFragment;
 import com.zxms.model.City;
+import com.zxms.utils.Constants;
 import com.zxms.utils.PinyinComparator;
 import com.zxms.utils.PinyinUtils;
 import com.zxms.view.EditTextWithDel;
@@ -28,66 +33,69 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class CityActivity extends BaseActivity {
-    private EditTextWithDel cityName_ed;
-    private RecyclerView recyclerView;
-    private SideBar sideBar;
-    private ImageView cancel_btn;
-    private TextView dialog;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
+public class CityActivity extends BaseActivity implements View.OnClickListener {
+    @BindView(R.id.cancel_btn)
+    ImageView mCancelBtn;
+    @BindView(R.id.et_search)
+    EditTextWithDel mEtSearch;
+    @BindView(R.id.recyclerView)
+    RecyclerView mRecyclerView;
+    @BindView(R.id.dialog)
+    TextView mDialog;
+    @BindView(R.id.sidrbar)
+    SideBar mSidrbar;
+
     private List<City> cities;
     private MySortAdapter adapter;
     private Context context;
     private Button btn_city_name;
     private RecyclerView gv_hot_city;
     private MyHotCityAdapter hotAdapter;
-    private String city;
+    private LocationService locationService;
+    private TextView choice_city_name;
+    private String localCity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_city);
-        context = this;
-        initView();
+        ButterKnife.bind(this);
+        context = CityActivity.this;
         initDate();
         onClick();
     }
 
-    private void initView() {
-        cancel_btn = (ImageView) findViewById(R.id.cancel_btn);
-        cityName_ed = (EditTextWithDel) findViewById(R.id.et_search);
-        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-        sideBar = (SideBar) findViewById(R.id.sidrbar);
-        dialog = (TextView) findViewById(R.id.dialog);
-
-        sideBar.setTextView(dialog);
-        cancel_btn.setOnClickListener(this);
-    }
 
     private void initDate() {
+        mSidrbar.setTextView(mDialog);
         cities = sortCities(getResources().getStringArray(R.array.provinces));
         Collections.sort(cities, new PinyinComparator());
         LinearLayoutManager linear = new LinearLayoutManager(this);
         linear.setOrientation(LinearLayoutManager.VERTICAL);
-        recyclerView.setLayoutManager(linear);
+        mRecyclerView.setLayoutManager(linear);
         adapter = new MySortAdapter(cities);
-        recyclerView.setAdapter(adapter);
+        mRecyclerView.setAdapter(adapter);
         //添加headview
-        setHeaderView(recyclerView);
+        setHeaderView(mRecyclerView);
     }
 
     private void onClick() {
-        sideBar.setOnTouchingLetterChangedListener(new SideBar.OnTouchingLetterChangedListener() {
+        mSidrbar.setOnTouchingLetterChangedListener(new SideBar.OnTouchingLetterChangedListener() {
             @Override
             public void onTouchingLetterChanged(String s) {
                 int position = adapter.getPositionForSection(s.charAt(0));
                 if (position != -1) {
-                    LinearLayoutManager llm = (LinearLayoutManager)recyclerView.getLayoutManager();
-                    llm.scrollToPositionWithOffset(position + 1,0);//将指定的position滑动到距离上面第0个的位置，也就是顶部
+                    LinearLayoutManager llm = (LinearLayoutManager) mRecyclerView.getLayoutManager();
+                    llm.scrollToPositionWithOffset(position + 1, 0);//将指定的position滑动到距离上面第0个的位置，也就是顶部
                 }
             }
         });
 
-        cityName_ed.addTextChangedListener(new TextWatcher() {
+        mEtSearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -107,11 +115,18 @@ public class CityActivity extends BaseActivity {
     }
 
     private void setHeaderView(RecyclerView recyclerView) {
-        View headView = LayoutInflater.from(context).inflate(R.layout.activity_city_headview,recyclerView,false);
+        View headView = LayoutInflater.from(context).inflate(R.layout.activity_city_headview, recyclerView, false);
         adapter.setHeaderView(headView);
         btn_city_name = (Button) headView.findViewById(R.id.btn_city_name);
         gv_hot_city = (RecyclerView) headView.findViewById(R.id.gv_hot_city);
-        GridLayoutManager gdm = new GridLayoutManager(this,3);
+        choice_city_name = (TextView) headView.findViewById(R.id.choice_city_name);
+        btn_city_name.setOnClickListener(this);
+
+        localCity = Constants.localCity;
+        if (!"".equals(localCity) || !TextUtils.isEmpty(localCity)) {
+            choice_city_name.setText(localCity);
+        }
+        GridLayoutManager gdm = new GridLayoutManager(this, 3);
         gv_hot_city.setLayoutManager(gdm);
         String[] datas = getResources().getStringArray(R.array.city);
         ArrayList<String> cityList = new ArrayList<>();
@@ -120,40 +135,37 @@ public class CityActivity extends BaseActivity {
         }
         hotAdapter = new MyHotCityAdapter(cityList);
         gv_hot_city.setAdapter(hotAdapter);
-
-
     }
 
-
-    @Override
+    @OnClick({R.id.cancel_btn})
     public void onClick(View v) {
-        super.onClick(v);
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.cancel_btn:
-                city = btn_city_name.getText().toString();
-                if(!TextUtils.isEmpty(city) || !"".equals(city)){
-                    Intent intent = new Intent();
-                    intent.putExtra("city",btn_city_name.getText().toString());
-                    setResult(HomePageFragment.LOCAL_CITY,intent);
-                }
                 finish();
                 overridePendingTransition(R.anim.in_left, R.anim.out_right);
+                break;
+            case R.id.btn_city_name:
+                String city = btn_city_name.getText().toString();
+                if (!localCity.equals(getString(R.string.localing))) {
+                    choiceCity(city);
+                }
                 break;
         }
     }
 
-    class MySortAdapter extends RecyclerView.Adapter<MySortAdapter.MyViewHolder> implements SectionIndexer{
-        class MyViewHolder extends RecyclerView.ViewHolder{
-            private TextView tv_catagory,tv_city_name;
+
+    class MySortAdapter extends RecyclerView.Adapter<MySortAdapter.MyViewHolder> implements SectionIndexer {
+        class MyViewHolder extends RecyclerView.ViewHolder {
+            private TextView tv_catagory, tv_city_name;
             private int position;
+
             public MyViewHolder(View itemView) {
                 super(itemView);
                 itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(position != 0){
-                            btn_city_name.setText(cities.get(position -1).getName());
-                            recyclerView.scrollToPosition(0);
+                        if (position != 0) {
+                            choiceCity(cities.get(position - 1).getName());
                         }
                     }
                 });
@@ -164,10 +176,11 @@ public class CityActivity extends BaseActivity {
         }
 
         private static final int TYPE_HEAD = 0;//headView
-        private static final int TYPE_FOOTER  = 1;//footer
+        private static final int TYPE_FOOTER = 1;//footer
         private static final int TYPE_NORMAL = 2;//normal
         private List<City> cities;
         private View headView;
+
         public MySortAdapter(List<City> cities) {
             this.cities = cities;
         }
@@ -182,18 +195,18 @@ public class CityActivity extends BaseActivity {
 
         @Override
         public int getItemViewType(int position) {
-            if(position == 0){
+            if (position == 0) {
                 return TYPE_HEAD;
             }
-            return  TYPE_NORMAL;
+            return TYPE_NORMAL;
         }
 
         @Override
         public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            if(headView != null && viewType == TYPE_HEAD){
+            if (headView != null && viewType == TYPE_HEAD) {
                 return new MyViewHolder(headView);
             }
-            View view = LayoutInflater.from(context).inflate(R.layout.activity_city_item,parent,false);
+            View view = LayoutInflater.from(context).inflate(R.layout.activity_city_item, parent, false);
             MyViewHolder viewHolder = new MyViewHolder(view);
             return viewHolder;
         }
@@ -201,12 +214,12 @@ public class CityActivity extends BaseActivity {
         @Override
         public void onBindViewHolder(MyViewHolder holder, int position) {
             holder.position = position;
-            if(getItemViewType(position) == TYPE_NORMAL){
-                if(holder instanceof MyViewHolder){
+            if (getItemViewType(position) == TYPE_NORMAL) {
+                if (holder instanceof MyViewHolder) {
                     City city = cities.get(position - 1);
                     holder.tv_catagory.setText(city.getLetter());
-                    int section = getSectionForPosition(position -1);
-                    if (position == getPositionForSection(section)) {
+                    int section = getSectionForPosition(position - 1);
+                    if (position - 1 == getPositionForSection(section)) {
                         holder.tv_catagory.setVisibility(View.VISIBLE);
                         holder.tv_catagory.setText(city.getLetter());
                     } else {
@@ -216,9 +229,9 @@ public class CityActivity extends BaseActivity {
                     return;
                 }
                 return;
-            }else if(getItemViewType(position) == TYPE_HEAD){
+            } else if (getItemViewType(position) == TYPE_HEAD) {
                 return;
-            }else{
+            } else {
                 return;
             }
 
@@ -227,9 +240,9 @@ public class CityActivity extends BaseActivity {
 
         @Override
         public int getItemCount() {
-            if(headView != null){
-                return cities.size()+1;
-            }else{
+            if (headView != null) {
+                return cities.size() + 1;
+            } else {
                 return cities.size();
             }
         }
@@ -267,12 +280,20 @@ public class CityActivity extends BaseActivity {
         }
     }
 
+    private void choiceCity(String city) {
+        if (!TextUtils.isEmpty(city) || !"".equals(city)) {
+            Constants.localCity = city;
+            Intent intent = new Intent();
+            intent.putExtra("city", city);
+            setResult(HomePageFragment.LOCAL_CITY, intent);
+        }
+        finish();
+        overridePendingTransition(R.anim.in_left, R.anim.out_right);
+    }
 
 
     /**
      * 根据输入框中的值来过滤数据并更新recyclerView
-     *
-     * @param filterStr
      */
     public void filterData(String filterStr) {
         List<City> mSortList = new ArrayList<>();
@@ -294,6 +315,7 @@ public class CityActivity extends BaseActivity {
 
     /**
      * 城市数据排序
+     *
      * @param date
      * @return
      */
@@ -315,13 +337,13 @@ public class CityActivity extends BaseActivity {
             mSortList.add(sortModel);
         }
         Collections.sort(indexString);
-        sideBar.setIndexText(indexString);
+        mSidrbar.setIndexText(indexString);
         return mSortList;
     }
 
-    class MyHotCityAdapter extends RecyclerView.Adapter<MyHotCityAdapter.MyHotViewHolder>{
+    class MyHotCityAdapter extends RecyclerView.Adapter<MyHotCityAdapter.MyHotViewHolder> {
 
-        class MyHotViewHolder extends  RecyclerView.ViewHolder{
+        class MyHotViewHolder extends RecyclerView.ViewHolder {
             private Button tv_city;
             private int position;
 
@@ -331,20 +353,21 @@ public class CityActivity extends BaseActivity {
                 tv_city.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        btn_city_name.setText(cityList.get(position));
+                        choiceCity(cityList.get(position));
                     }
                 });
             }
         }
 
         private List<String> cityList;
+
         public MyHotCityAdapter(ArrayList<String> cityList) {
             this.cityList = cityList;
         }
 
         @Override
         public MyHotViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(context).inflate(R.layout.activity_hotcity_item,parent,false);
+            View view = LayoutInflater.from(context).inflate(R.layout.activity_hotcity_item, parent, false);
             return new MyHotViewHolder(view);
         }
 
@@ -361,4 +384,39 @@ public class CityActivity extends BaseActivity {
         }
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        locationService = MyApplication.getInstances().locationService;
+        locationService.registerListener(mListener);
+        locationService.setLocationOption(locationService.getDefaultLocationClientOption());
+        locationService.start();
+    }
+
+    private BDLocationListener mListener = new BDLocationListener() {
+
+        @Override
+        public void onReceiveLocation(BDLocation location) {
+            if (null != location && location.getLocType() != BDLocation.TypeServerError) {
+                btn_city_name.setText(location.getCity());
+            }
+        }
+
+        @Override
+        public void onConnectHotSpotMessage(String s, int i) {
+
+        }
+    };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        locationService.unregisterListener(mListener); //注销掉监听
+        locationService.stop(); //停止定位服务
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
 }

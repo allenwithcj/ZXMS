@@ -1,6 +1,10 @@
 package com.zxms;
 
+import android.Manifest;
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -19,11 +23,45 @@ import com.zxms.fragment.MyFragment;
 import com.zxms.utils.ActivityControl;
 import com.zxms.utils.Constants;
 
+import java.util.ArrayList;
 
-public class MainActivity extends BaseActivity{
-    private LinearLayout homePage_layout, information_layout, moudle_layout, find_layout, my_layout;
-    private ImageView homePage_img, information_img, moudle_img, find_img, my_img;
-    private TextView homePage_txt, information_txt, moudle_txt, find_txt, my_txt;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
+
+public class MainActivity extends BaseActivity implements View.OnClickListener {
+    @BindView(R.id.homePage_img)
+    ImageView mHomePageImg;
+    @BindView(R.id.homePage_txt)
+    TextView mHomePageTxt;
+    @BindView(R.id.homePage_layout)
+    LinearLayout mHomePageLayout;
+    @BindView(R.id.information_img)
+    ImageView mInformationImg;
+    @BindView(R.id.information_txt)
+    TextView mInformationTxt;
+    @BindView(R.id.information_layout)
+    LinearLayout mInformationLayout;
+    @BindView(R.id.moudle_img)
+    ImageView mMoudleImg;
+    @BindView(R.id.moudle_txt)
+    TextView mMoudleTxt;
+    @BindView(R.id.moudle_layout)
+    LinearLayout mMoudleLayout;
+    @BindView(R.id.find_img)
+    ImageView mFindImg;
+    @BindView(R.id.find_txt)
+    TextView mFindTxt;
+    @BindView(R.id.find_layout)
+    LinearLayout mFindLayout;
+    @BindView(R.id.my_img)
+    ImageView mMyImg;
+    @BindView(R.id.my_txt)
+    TextView mMyTxt;
+    @BindView(R.id.my_layout)
+    LinearLayout mMyLayout;
+
     private Context context;
     private FragmentManager fragmentManager;
     private HomePageFragment homePageFragment;
@@ -32,52 +70,29 @@ public class MainActivity extends BaseActivity{
     private FindFragment findFragment;
     private MyFragment myFragment;
     private long exitTime = 0;
+    private final int SDK_PERMISSION_REQUEST = 127;
+    private String permissionInfo;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
         context = MainActivity.this;
-        initView();
+        getPersimmions();
         setTabSelection(0);
     }
 
-    private void initView() {
-        fragmentManager = getSupportFragmentManager();
-        homePage_layout = (LinearLayout) findViewById(R.id.homePage_layout);
-        information_layout = (LinearLayout) findViewById(R.id.information_layout);
-        moudle_layout = (LinearLayout) findViewById(R.id.moudle_layout);
-        find_layout = (LinearLayout) findViewById(R.id.find_layout);
-        my_layout = (LinearLayout) findViewById(R.id.my_layout);
-
-        homePage_img = (ImageView) findViewById(R.id.homePage_img);
-        information_img = (ImageView) findViewById(R.id.information_img);
-        moudle_img = (ImageView) findViewById(R.id.moudle_img);
-        find_img = (ImageView) findViewById(R.id.find_img);
-        my_img = (ImageView) findViewById(R.id.my_img);
-
-        homePage_txt = (TextView) findViewById(R.id.homePage_txt);
-        information_txt = (TextView) findViewById(R.id.information_txt);
-        moudle_txt = (TextView) findViewById(R.id.moudle_txt);
-        find_txt = (TextView) findViewById(R.id.find_txt);
-        my_txt = (TextView) findViewById(R.id.my_txt);
-
-        homePage_layout.setOnClickListener(this);
-        information_layout.setOnClickListener(this);
-        moudle_layout.setOnClickListener(this);
-        find_layout.setOnClickListener(this);
-        my_layout.setOnClickListener(this);
-
-    }
-
     private void setTabSelection(int i) {
+        fragmentManager = getSupportFragmentManager();
         resetBtn();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         hideFragments(fragmentTransaction);
         switch (i) {
             case 0:
-                homePage_txt.setTextColor(this.getResources().getColor(R.color.blue));
-                homePage_img.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.home_active));
+                mHomePageTxt.setTextColor(this.getResources().getColor(R.color.blue));
+                mHomePageImg.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.home_active));
                 if (homePageFragment == null) {
                     homePageFragment = new HomePageFragment();
                     fragmentTransaction.add(R.id.id_content, homePageFragment);
@@ -86,8 +101,8 @@ public class MainActivity extends BaseActivity{
                 }
                 break;
             case 1:
-                information_txt.setTextColor(this.getResources().getColor(R.color.blue));
-                information_img.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.news_active));
+                mInformationTxt.setTextColor(this.getResources().getColor(R.color.blue));
+                mInformationImg.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.news_active));
                 if (informationFragment == null) {
                     informationFragment = new InformationFragment();
                     fragmentTransaction.add(R.id.id_content, informationFragment);
@@ -96,8 +111,8 @@ public class MainActivity extends BaseActivity{
                 }
                 break;
             case 2:
-                moudle_txt.setTextColor(this.getResources().getColor(R.color.blue));
-                moudle_img.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.life_active));
+                mMoudleTxt.setTextColor(this.getResources().getColor(R.color.blue));
+                mMoudleImg.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.life_active));
                 if (moudleFragment == null) {
                     moudleFragment = new ModuleFragment();
                     fragmentTransaction.add(R.id.id_content, moudleFragment);
@@ -106,8 +121,8 @@ public class MainActivity extends BaseActivity{
                 }
                 break;
             case 3:
-                find_txt.setTextColor(this.getResources().getColor(R.color.blue));
-                find_img.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.find_active));
+                mFindTxt.setTextColor(this.getResources().getColor(R.color.blue));
+                mFindImg.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.find_active));
                 if (findFragment == null) {
                     findFragment = new FindFragment();
                     fragmentTransaction.add(R.id.id_content, findFragment);
@@ -116,8 +131,8 @@ public class MainActivity extends BaseActivity{
                 }
                 break;
             case 4:
-                my_txt.setTextColor(this.getResources().getColor(R.color.blue));
-                my_img.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.my_active));
+                mMyTxt.setTextColor(this.getResources().getColor(R.color.blue));
+                mMyImg.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.my_active));
                 if (myFragment == null) {
                     myFragment = new MyFragment();
                     fragmentTransaction.add(R.id.id_content, myFragment);
@@ -134,27 +149,25 @@ public class MainActivity extends BaseActivity{
      * 重置icon属性
      */
     private void resetBtn() {
-        homePage_img.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.home));
-        homePage_txt.setTextColor(this.getResources().getColor(R.color.black));
+        mHomePageImg.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.home));
+        mHomePageTxt.setTextColor(this.getResources().getColor(R.color.black));
 
-        information_img.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.news));
-        information_txt.setTextColor(this.getResources().getColor(R.color.black));
+        mInformationImg.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.news));
+        mInformationTxt.setTextColor(this.getResources().getColor(R.color.black));
 
-        moudle_img.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.life));
-        moudle_txt.setTextColor(this.getResources().getColor(R.color.black));
+        mMoudleImg.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.life));
+        mMoudleTxt.setTextColor(this.getResources().getColor(R.color.black));
 
-        find_img.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.find));
-        find_txt.setTextColor(this.getResources().getColor(R.color.black));
+        mFindImg.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.find));
+        mFindTxt.setTextColor(this.getResources().getColor(R.color.black));
 
-        my_img.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.my));
-        my_txt.setTextColor(this.getResources().getColor(R.color.black));
+        mMyImg.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.my));
+        mMyTxt.setTextColor(this.getResources().getColor(R.color.black));
 
     }
 
     /**
      * 隐藏fragment
-     *
-     * @param fragmentTransaction
      */
     private void hideFragments(FragmentTransaction fragmentTransaction) {
         if (homePageFragment != null) {
@@ -178,8 +191,88 @@ public class MainActivity extends BaseActivity{
         }
     }
 
-
     @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (System.currentTimeMillis() - exitTime > 2000) {
+                Toast.makeText(context, "再按一次退出程序", Toast.LENGTH_SHORT).show();
+                exitTime = System.currentTimeMillis();
+            } else {
+                Constants.isLogin = false;
+                ActivityControl.finishAll();
+            }
+        }
+        return false;
+    }
+
+    @TargetApi(23)
+    private void getPersimmions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            ArrayList<String> permissions = new ArrayList<String>();
+            /***
+             * 定位权限为必须权限，用户如果禁止，则每次进入都会申请
+             */
+            // 定位精确位置
+            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
+            }
+            if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+            }
+            /*
+			 * 读写权限和电话状态权限非必要权限(建议授予)只会申请一次，用户同意或者禁止，只会弹一次
+			 */
+            // 读写权限
+            if (addPermission(permissions, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                permissionInfo += "Manifest.permission.WRITE_EXTERNAL_STORAGE Deny \n";
+            }
+            // 读取电话状态权限
+            if (addPermission(permissions, Manifest.permission.READ_PHONE_STATE)) {
+                permissionInfo += "Manifest.permission.READ_PHONE_STATE Deny \n";
+            }
+            //开启摄像头权限
+            if (addPermission(permissions, Manifest.permission.CAMERA)) {
+                permissionInfo += "Manifest.permission.CAMERA Deny \n";
+            }
+            //外部读取存储权限
+            if (addPermission(permissions, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                permissionInfo += "Manifest.permission.READ_EXTERNAL_STORAGE Deny \n";
+            }
+            //读取wifi状态
+            if (addPermission(permissions, Manifest.permission.ACCESS_WIFI_STATE)) {
+                permissionInfo += "Manifest.permission.ACCESS_WIFI_STATE Deny \n";
+            }
+
+
+            if (permissions.size() > 0) {
+                requestPermissions(permissions.toArray(new String[permissions.size()]), SDK_PERMISSION_REQUEST);
+            }
+        }
+    }
+
+    @TargetApi(23)
+    private boolean addPermission(ArrayList<String> permissionsList, String permission) {
+        if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) { // 如果应用没有获得对应权限,则添加到列表中,准备批量申请
+            if (shouldShowRequestPermissionRationale(permission)) {
+                return true;
+            } else {
+                permissionsList.add(permission);
+                return false;
+            }
+
+        } else {
+            return true;
+        }
+    }
+
+    @TargetApi(23)
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+    }
+
+    @OnClick({R.id.homePage_layout,R.id.information_layout,R.id.moudle_layout,R.id.find_layout,R.id.my_layout})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.homePage_layout:
@@ -199,19 +292,4 @@ public class MainActivity extends BaseActivity{
                 break;
         }
     }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if (System.currentTimeMillis() - exitTime > 2000) {
-                Toast.makeText(context,"再按一次退出程序",Toast.LENGTH_SHORT).show();
-                exitTime = System.currentTimeMillis();
-            } else {
-                Constants.isLogin = false;
-                ActivityControl.finishAll();
-            }
-        }
-        return  false;
-    }
-
 }

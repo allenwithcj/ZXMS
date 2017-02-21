@@ -8,4 +8,5 @@ public class Constants {
     public static boolean isLogin = false;
     public static String userName = "";
     public static final String THIRDPARTYLOGIN = "thirdPartyLogin";
+    public static String localCity = "";
 }

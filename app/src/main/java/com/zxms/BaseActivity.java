@@ -2,12 +2,11 @@ package com.zxms;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
 import android.view.Window;
 
 import com.zxms.utils.ActivityControl;
 
-public class BaseActivity extends AppCompatActivity implements View.OnClickListener{
+public class BaseActivity extends AppCompatActivity{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,15 +17,11 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         ActivityControl.removeActivity(this);
-    }
-
-    @Override
-    public void onClick(View v) {
-
     }
 
 }

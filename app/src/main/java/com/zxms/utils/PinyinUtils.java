@@ -47,15 +47,12 @@ public class PinyinUtils {
         format.setToneType(HanyuPinyinToneType.WITHOUT_TONE);
         format.setVCharType(HanyuPinyinVCharType.WITH_V);
         String output = "";
-        if (inputString != null && inputString.length() > 0
-                && !"null".equals(inputString)) {
+        if (inputString != null && inputString.length() > 0 && !"null".equals(inputString)) {
             char[] input = inputString.trim().toCharArray();
             try {
                 for (int i = 0; i < input.length; i++) {
-                    if (Character.toString(input[i]).matches(
-                            "[\\u4E00-\\u9FA5]+")) {
-                        String[] temp = PinyinHelper.toHanyuPinyinStringArray(
-                                input[i], format);
+                    if (Character.toString(input[i]).matches("[\\u4E00-\\u9FA5]+")) {
+                        String[] temp = PinyinHelper.toHanyuPinyinStringArray(input[i], format);
                         output += temp[0];
                     } else
                         output += Character.toString(input[i]);

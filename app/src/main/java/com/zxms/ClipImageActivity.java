@@ -17,59 +17,38 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 /**
  * 头像裁剪Activity
  */
-public class ClipImageActivity extends BaseActivity{
+public class ClipImageActivity extends BaseActivity implements View.OnClickListener {
     private static final String TAG = "ClipImageActivity";
-    private ClipViewLayout clipViewLayout2;
-    private ImageView back;
-    private TextView btnCancel;
-    private TextView btnOk;
+    @BindView(R.id.iv_back)
+    ImageView mIvBack;
+    @BindView(R.id.clipViewLayout2)
+    ClipViewLayout mClipViewLayout2;
+    @BindView(R.id.btn_cancel)
+    TextView mBtnCancel;
+    @BindView(R.id.bt_ok)
+    TextView mBtOk;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_clip_image);
-        initView();
+        ButterKnife.bind(this);
     }
 
-    /**
-     * 初始化组件
-     */
-    public void initView() {
-        clipViewLayout2 = (ClipViewLayout) findViewById(R.id.clipViewLayout2);
-        back = (ImageView) findViewById(R.id.iv_back);
-        btnCancel = (TextView) findViewById(R.id.btn_cancel);
-        btnOk = (TextView) findViewById(R.id.bt_ok);
-        //设置点击事件监听器
-        back.setOnClickListener(this);
-        btnCancel.setOnClickListener(this);
-        btnOk.setOnClickListener(this);
-    }
 
     @Override
     protected void onResume() {
         super.onResume();
         //设置图片资源
-        clipViewLayout2.setImageSrc(getIntent().getData());
+        mClipViewLayout2.setImageSrc(getIntent().getData());
     }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.iv_back:
-                finish();
-                break;
-            case R.id.btn_cancel:
-                finish();
-                break;
-            case R.id.bt_ok:
-                generateUriAndReturn();
-                break;
-        }
-    }
-
 
     /**
      * 生成Uri并且通过setResult返回给打开的activity
@@ -77,7 +56,7 @@ public class ClipImageActivity extends BaseActivity{
     private void generateUriAndReturn() {
         //调用返回剪切图
         Bitmap zoomedCropBitmap;
-        zoomedCropBitmap = clipViewLayout2.clip();
+        zoomedCropBitmap = mClipViewLayout2.clip();
         if (zoomedCropBitmap == null) {
             Log.e("android", "zoomedCropBitmap == null");
             return;
@@ -105,6 +84,21 @@ public class ClipImageActivity extends BaseActivity{
             intent.setData(mSaveUri);
             setResult(RESULT_OK, intent);
             finish();
+        }
+    }
+
+    @OnClick({R.id.iv_back,R.id.btn_cancel, R.id.bt_ok})
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.iv_back:
+                finish();
+                break;
+            case R.id.btn_cancel:
+                finish();
+                break;
+            case R.id.bt_ok:
+                generateUriAndReturn();
+                break;
         }
     }
 }

@@ -9,7 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -31,27 +31,53 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.baidu.location.BDLocation;
+import com.baidu.location.BDLocationListener;
 import com.zxms.CityActivity;
 import com.zxms.MyCaptureActivity;
 import com.zxms.R;
+import com.zxms.application.MyApplication;
+import com.zxms.baidu.service.LocationService;
 import com.zxms.model.HomePageMenu;
 import com.zxms.utils.AsyncImageLoader;
+import com.zxms.utils.Constants;
 import com.zxms.utils.Tools;
 import com.zxms.zxing.activity.CodeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Unbinder;
+
 /**
  * Created by hp on 2017/1/14.
  * 首页
  */
-public class HomePageFragment extends BaseFragment implements
-        SwipeRefreshLayout.OnRefreshListener{
+public class HomePageFragment extends Fragment implements
+        SwipeRefreshLayout.OnRefreshListener, View.OnClickListener {
     private static final String TAG = "HomePageFragment";
     public static final int LOCAL_CITY = 1001;
-    private ViewPager viewPager_adv;
-    private ViewPager viewPager_menu;
+    @BindView(R.id.menu_add_btn)
+    ImageView mMenuAddBtn;
+    @BindView(R.id.city)
+    TextView mCity;
+    @BindView(R.id.view_pager_adv)
+    ViewPager mViewPagerAdv;
+    @BindView(R.id.indicator_adv)
+    LinearLayout mIndicatorAdv;
+    @BindView(R.id.view_pager_menu)
+    ViewPager mViewPagerMenu;
+    @BindView(R.id.indicator_menu)
+    LinearLayout mIndicatorMenu;
+    @BindView(R.id.swipeLayout)
+    SwipeRefreshLayout mSwipeLayout;
+    @BindView(R.id.title_layout)
+    RelativeLayout mTitleLayout;
+    @BindView(R.id.home_layout)
+    LinearLayout mHomeLayout;
     private MyAdvViewPagerAdapter advAdapter;
     private MyMenuViewPagerAdapter menuAdapter;
     private String[] url = {"http://pic.qiantucdn.com/58pic/17/94/38/55b08aabda62f_1024.jpg",
@@ -78,59 +104,54 @@ public class HomePageFragment extends BaseFragment implements
     private List<HomePageMenu> homePageMenuList;
     private View adItemView;
     private View menuItemView;
-    private ImageView menu_add_btn;
     private int totalPage;
     private int pageSize = 10;//页面显示的个数
     private MyGridViewAdapter gridAdapter;
     private boolean isOpenClick = true;
-    private RotateAnimation rotate_right,rotate_left;
-    private LinearLayout shake_layout,rebelion_layout,scan_layout,search_layout;
+    private RotateAnimation rotate_right, rotate_left;
+    private LinearLayout shake_layout, rebelion_layout, scan_layout, search_layout;
     private PopupWindow popupWindow;
-    private SwipeRefreshLayout swipeLayout;
-    private RelativeLayout title_layout;
     private View popuView;
-    public static final int REQUEST_CAMERA = 101;//照相机权限
     public static final int REQUEST_CODE = 102;//选择相册
-    private TextView city;
+    private LocationService locationService;
+    private String localCity;
 
-    private Handler mHandler = new Handler(){
+    private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            viewPager_adv.setCurrentItem(viewPager_adv.getCurrentItem()+1);
-            mHandler.sendEmptyMessageDelayed(0,2000);
+            mViewPagerAdv.setCurrentItem(mViewPagerAdv.getCurrentItem() + 1);
+            mHandler.sendEmptyMessageDelayed(0, 2000);
         }
     };
+    private View view;
+    private Unbinder unbinder;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_homepage, container, false);
-        initDateAdv();
+        unbinder = ButterKnife.bind(this, view);
+        initAdvDate();
         initMenuDate();
         initView(view);
+        startLocation();
         initIndicator_adv(view);
         initIndicator_menu(view);
         return view;
     }
 
-    Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            if (msg.what == 1) {
-                int currentItem = viewPager_adv.getCurrentItem();
-                currentItem++;
-                viewPager_adv.setCurrentItem(currentItem, false);
-            }
-        }
-    };
-
+    private void startLocation() {
+        locationService = MyApplication.getInstances().locationService;
+        locationService.registerListener(mListener);
+        locationService.setLocationOption(locationService.getDefaultLocationClientOption());
+        locationService.start();
+    }
 
     /**
      * 加载广告页面数据
      */
-    private void initDateAdv() {
+    private void initAdvDate() {
         advViewList = new ArrayList<View>();
         for (int x = 0; x < url.length; x++) {
             adItemView = LayoutInflater.from(getActivity()).inflate(R.layout.activity_homepage_adv_item, null);
@@ -171,38 +192,30 @@ public class HomePageFragment extends BaseFragment implements
 
     private void initView(final View view) {
         indicator_menu_imgs = new ImageView[totalPage];
-        rotate_right = new RotateAnimation(0f,45f,Animation.RELATIVE_TO_SELF,
-                0.5f,Animation.RELATIVE_TO_SELF,0.5f);
-        rotate_left = new RotateAnimation(45f,0f,Animation.RELATIVE_TO_SELF,
-                0.5f,Animation.RELATIVE_TO_SELF,0.5f) ;
+        rotate_right = new RotateAnimation(0f, 45f, Animation.RELATIVE_TO_SELF,
+                0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        rotate_left = new RotateAnimation(45f, 0f, Animation.RELATIVE_TO_SELF,
+                0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
 
-        viewPager_adv = (ViewPager) view.findViewById(R.id.view_pager_adv);
-        viewPager_menu = (ViewPager) view.findViewById(R.id.view_pager_menu);
-        menu_add_btn = (ImageView) view.findViewById(R.id.menu_add_btn);
-        city = (TextView) view.findViewById(R.id.city);
-
-        swipeLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeLayout);
-        title_layout = (RelativeLayout) view.findViewById(R.id.title_layout);
 
         advAdapter = new MyAdvViewPagerAdapter(advViewList);
-        viewPager_adv.setAdapter(advAdapter);
-        viewPager_adv.setCurrentItem(1000);
+        mViewPagerAdv.setAdapter(advAdapter);
+        mViewPagerAdv.setCurrentItem(1000);
 
         menuAdapter = new MyMenuViewPagerAdapter(menuViewList);
-        viewPager_menu.setAdapter(menuAdapter);
-        viewPager_menu.setCurrentItem(0);
+        mViewPagerMenu.setAdapter(menuAdapter);
+        mViewPagerMenu.setCurrentItem(0);
 
-        menu_add_btn.setOnClickListener(this);
-        viewPager_adv.setOnPageChangeListener(new MyPageChangeListener(0));
-        viewPager_menu.setOnPageChangeListener(new MyPageChangeListener(1));
+        mViewPagerAdv.setOnPageChangeListener(new MyPageChangeListener(0));
+        mViewPagerMenu.setOnPageChangeListener(new MyPageChangeListener(1));
 
         //初始化popview
-        popuView = LayoutInflater.from(getActivity()).inflate(R.layout.activity_popmenu,null);
-        int title_height = title_layout.getLayoutParams().height;
+        popuView = LayoutInflater.from(getActivity()).inflate(R.layout.activity_popmenu, null);
+        int title_height = mTitleLayout.getLayoutParams().height;
         popuView.setAlpha(0.9f);//设置透明度
         int screenHeight = getActivity().getWindowManager().getDefaultDisplay().getHeight();
         int statusBarHeight = Tools.getStatusBarHeight(getActivity());
-        popupWindow = new PopupWindow(popuView,ViewGroup.LayoutParams.MATCH_PARENT,
+        popupWindow = new PopupWindow(popuView, ViewGroup.LayoutParams.MATCH_PARENT,
                 screenHeight - title_height - statusBarHeight);
         popupWindow.setFocusable(false);
         popupWindow.setBackgroundDrawable(new BitmapDrawable());
@@ -216,13 +229,12 @@ public class HomePageFragment extends BaseFragment implements
         rebelion_layout.setOnClickListener(this);
         scan_layout.setOnClickListener(this);
         search_layout.setOnClickListener(this);
-        city.setOnClickListener(this);
 
         popuView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if(v.getId() != R.id.shake_layout || v.getId() != R.id.rebelion_layout || v.getId() != R.id.rebelion_layout || v.getId() != R.id.scan_layout ||
-                        v.getId() != R.id.search_layout){
+                if (v.getId() != R.id.shake_layout || v.getId() != R.id.rebelion_layout || v.getId() != R.id.rebelion_layout || v.getId() != R.id.scan_layout ||
+                        v.getId() != R.id.search_layout) {
                     dismissPopuView();
                 }
                 return false;
@@ -285,15 +297,15 @@ public class HomePageFragment extends BaseFragment implements
                     Toast.makeText(getActivity(), "解析二维码失败", Toast.LENGTH_LONG).show();
                 }
             }
-        }else if(requestCode == LOCAL_CITY){
-            if(null != data){
-                city.setText(data.getExtras().getString("city"));
+        } else if (requestCode == LOCAL_CITY) {
+            if (null != data) {
+                mCity.setText(data.getExtras().getString("city"));
             }
 
         }
     }
 
-    private void startRotateAnimation(RotateAnimation animation, ImageView menu_add_btn){
+    private void startRotateAnimation(RotateAnimation animation, ImageView menu_add_btn) {
         animation.setDuration(500);
         animation.setFillAfter(true);
         menu_add_btn.startAnimation(animation);
@@ -301,16 +313,16 @@ public class HomePageFragment extends BaseFragment implements
 
     private void showPopuView() {
         isOpenClick = false;
-        startRotateAnimation(rotate_right,menu_add_btn);
+        startRotateAnimation(rotate_right, mMenuAddBtn);
         popupWindow.setAnimationStyle(R.style.popView_animation_style);
-        popupWindow.showAtLocation(swipeLayout,Gravity.BOTTOM,0,0);
+        popupWindow.showAtLocation(mSwipeLayout, Gravity.BOTTOM, 0, 0);
 
     }
 
     private void dismissPopuView() {
         isOpenClick = true;
-        startRotateAnimation(rotate_left,menu_add_btn);
-        if(popupWindow.isShowing()){
+        startRotateAnimation(rotate_left, mMenuAddBtn);
+        if (popupWindow.isShowing()) {
             popupWindow.dismiss();
         }
     }
@@ -321,18 +333,18 @@ public class HomePageFragment extends BaseFragment implements
     }
 
 
-    @Override
+    @OnClick({R.id.menu_add_btn, R.id.city})
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.city:
                 Intent intent = new Intent(getActivity(), CityActivity.class);
-                startActivityForResult(intent,LOCAL_CITY);
-                getActivity().overridePendingTransition(R.anim.in_right,R.anim.out_left);
+                startActivityForResult(intent, LOCAL_CITY);
+                getActivity().overridePendingTransition(R.anim.in_right, R.anim.out_left);
                 break;
             case R.id.menu_add_btn:
-                if(isOpenClick){
+                if (isOpenClick) {
                     showPopuView();
-                }else{
+                } else {
                     dismissPopuView();
                 }
                 break;
@@ -342,13 +354,19 @@ public class HomePageFragment extends BaseFragment implements
                 if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA)
                         != PackageManager.PERMISSION_GRANTED) {
                     //申请CAMERA权限
-                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CAMERA},
-                            REQUEST_CAMERA);
+//                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CAMERA},
+//                            REQUEST_CAMERA);
                 } else {
                     gotoCarema();
                 }
                 break;
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 
     public class MyAdvViewPagerAdapter extends PagerAdapter {
@@ -378,7 +396,7 @@ public class HomePageFragment extends BaseFragment implements
 
         @Override
         public Object instantiateItem(final ViewGroup container, final int position) {
-              asyncImageLoader.loadDrawable(url[position % viewList.size()], new AsyncImageLoader.ImageCallback() {
+            asyncImageLoader.loadDrawable(url[position % viewList.size()], new AsyncImageLoader.ImageCallback() {
                 @Override
                 public void imageLoaded(Drawable imageDrawable, String imageUrl) {
                     View view = viewList.get(position % viewList.size());
@@ -395,14 +413,14 @@ public class HomePageFragment extends BaseFragment implements
                     view.setOnTouchListener(new View.OnTouchListener() {
                         @Override
                         public boolean onTouch(View v, MotionEvent event) {
-                            if(event.getAction() == MotionEvent.ACTION_DOWN){
+                            if (event.getAction() == MotionEvent.ACTION_DOWN) {
                                 mHandler.removeMessages(0);
-                            }else if(event.getAction() == MotionEvent.ACTION_MOVE){
+                            } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
                                 mHandler.removeMessages(0);
-                            }else if(event.getAction() == MotionEvent.ACTION_UP){
-                                mHandler.sendEmptyMessageDelayed(0,2000);
-                            }else if(event.getAction() == MotionEvent.ACTION_CANCEL){
-                                mHandler.sendEmptyMessageDelayed(0,2000);
+                            } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                                mHandler.sendEmptyMessageDelayed(0, 2000);
+                            } else if (event.getAction() == MotionEvent.ACTION_CANCEL) {
+                                mHandler.sendEmptyMessageDelayed(0, 2000);
                             }
                             return false;
                         }
@@ -545,32 +563,52 @@ public class HomePageFragment extends BaseFragment implements
     @Override
     public void onResume() {
         super.onResume();
-        mHandler.sendEmptyMessageDelayed(0,2000);
+        mHandler.sendEmptyMessageDelayed(0, 2000);
     }
 
-    /**
-     * 外部存储权限申请返回
-     *
-     * @param requestCode
-     * @param permissions
-     * @param grantResults
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_CAMERA) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission Granted
-                gotoCarema();
-            } else {
-                // Permission Denied
-            }
-        }
-}
     private void gotoCarema() {
         Intent intent = new Intent(getActivity(), MyCaptureActivity.class);
         startActivityForResult(intent, REQUEST_CODE);
     }
 
+    private BDLocationListener mListener = new BDLocationListener() {
 
+        @Override
+        public void onReceiveLocation(BDLocation location) {
+            if (null != location && location.getLocType() != BDLocation.TypeServerError) {
+                localCity = location.getCity();
+                Constants.localCity = localCity;
+                handler.sendMessage(handler.obtainMessage(0, localCity));
+            }
+        }
+
+        @Override
+        public void onConnectHotSpotMessage(String s, int i) {
+
+        }
+    };
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        locationService.unregisterListener(mListener); //注销掉监听
+        locationService.stop(); //停止定位服务
+    }
+
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case 0:
+                    mCity.setText(msg.obj.toString());
+                    break;
+                case 1:
+                    int currentItem = mViewPagerAdv.getCurrentItem();
+                    currentItem++;
+                    mViewPagerAdv.setCurrentItem(currentItem, false);
+                    break;
+            }
+        }
+    };
 }

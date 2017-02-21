@@ -4,6 +4,43 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:background="#F0F0F0">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp">
+
+        <TextView
+            android:id="@+id/choice_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:layout_marginLeft="16dp"
+            android:text="@string/choice"
+            android:textColor="@android:color/black"
+            android:textSize="14sp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="16dp" />
+
+        <TextView
+            android:id="@+id/choice_city_name"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:textSize="14sp"
+            android:textColor="@android:color/black"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/choice_txt"
+            android:layout_toEndOf="@+id/choice_txt"
+            android:layout_marginLeft="12dp"
+            android:layout_marginStart="12dp" />
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginRight="24dp"
+        android:background="#E0E0E0" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -28,6 +65,7 @@
             android:layout_marginTop="10dp"
             android:layout_alignParentRight="true"
             android:background="#32B9AB"
+            android:text="@string/localing"
             android:textColor="@android:color/white"
             android:textSize="14sp" />
     </RelativeLayout>

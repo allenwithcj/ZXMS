@@ -2,6 +2,7 @@ package com.zxms.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
@@ -11,46 +12,49 @@ import android.widget.Button;
 
 import com.zxms.R;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Unbinder;
+
 
 /**
  * Created by hp on 2017/1/14.
  * 资讯
  */
-public class InformationFragment extends BaseFragment {
-    private Button news_btn, picsay_btn, videolisten_btn;
+public class InformationFragment extends Fragment implements View.OnClickListener {
+    @BindView(R.id.news_btn)
+    Button mNewsBtn;
+    @BindView(R.id.picsay_btn)
+    Button mPicsayBtn;
+    @BindView(R.id.videolisten_btn)
+    Button mVideolistenBtn;
     private FragmentManager fragmentManager;
     private NewsFragment newsFragment;
     private PicSayFragment picSayFragment;
     private VideoListenFragment videoListenFragment;
+    private View view;
+    private Unbinder unbinder;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_information, container, false);
-        initView(view);
+        unbinder = ButterKnife.bind(this, view);
         setTabSelection(0);
         return view;
     }
 
-    private void initView(View view) {
-        fragmentManager = getFragmentManager();
-        news_btn = (Button) view.findViewById(R.id.news_btn);
-        picsay_btn = (Button) view.findViewById(R.id.picsay_btn);
-        videolisten_btn = (Button) view.findViewById(R.id.videolisten_btn);
-
-        news_btn.setOnClickListener(this);
-        picsay_btn.setOnClickListener(this);
-        videolisten_btn.setOnClickListener(this);
-    }
 
     private void setTabSelection(int i) {
+        fragmentManager = getFragmentManager();
         resetBtn();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         hideFragments(fragmentTransaction);
         switch (i) {
             case 0:
-                news_btn.setTextColor(getResources().getColor(R.color.blue));
-                news_btn.setBackgroundDrawable(getResources().getDrawable(R.drawable.switch_button_left_choice));
+                mNewsBtn.setTextColor(getResources().getColor(R.color.blue));
+                mNewsBtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.switch_button_left_choice));
                 if (newsFragment == null) {
                     newsFragment = new NewsFragment();
                     fragmentTransaction.add(R.id.information_content, newsFragment);
@@ -59,8 +63,8 @@ public class InformationFragment extends BaseFragment {
                 }
                 break;
             case 1:
-                picsay_btn.setTextColor(getResources().getColor(R.color.blue));
-                picsay_btn.setBackgroundDrawable(getResources().getDrawable(R.drawable.switch_button_middle_choice));
+                mPicsayBtn.setTextColor(getResources().getColor(R.color.blue));
+                mPicsayBtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.switch_button_middle_choice));
                 if (picSayFragment == null) {
                     picSayFragment = new PicSayFragment();
                     fragmentTransaction.add(R.id.information_content, picSayFragment);
@@ -69,8 +73,8 @@ public class InformationFragment extends BaseFragment {
                 }
                 break;
             case 2:
-                videolisten_btn.setTextColor(getResources().getColor(R.color.blue));
-                videolisten_btn.setBackgroundDrawable(getResources().getDrawable(R.drawable.switch_button_right_choice));
+                mVideolistenBtn.setTextColor(getResources().getColor(R.color.blue));
+                mVideolistenBtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.switch_button_right_choice));
                 if (videoListenFragment == null) {
                     videoListenFragment = new VideoListenFragment();
                     fragmentTransaction.add(R.id.information_content, videoListenFragment);
@@ -83,13 +87,13 @@ public class InformationFragment extends BaseFragment {
     }
 
     private void resetBtn() {
-        news_btn.setBackgroundDrawable(getResources().getDrawable(R.drawable.switch_button_left));
-        picsay_btn.setBackgroundDrawable(getResources().getDrawable(R.drawable.switch_button_middle));
-        videolisten_btn.setBackgroundDrawable(getResources().getDrawable(R.drawable.switch_button_right));
+        mNewsBtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.switch_button_left));
+        mPicsayBtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.switch_button_middle));
+        mVideolistenBtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.switch_button_right));
 
-        news_btn.setTextColor(getResources().getColor(R.color.white));
-        picsay_btn.setTextColor(getResources().getColor(R.color.white));
-        videolisten_btn.setTextColor(getResources().getColor(R.color.white));
+        mNewsBtn.setTextColor(getResources().getColor(R.color.white));
+        mPicsayBtn.setTextColor(getResources().getColor(R.color.white));
+        mVideolistenBtn.setTextColor(getResources().getColor(R.color.white));
     }
 
     private void hideFragments(FragmentTransaction fragmentTransaction) {
@@ -104,7 +108,7 @@ public class InformationFragment extends BaseFragment {
         }
     }
 
-    @Override
+    @OnClick({R.id.news_btn, R.id.picsay_btn, R.id.videolisten_btn})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.news_btn:
@@ -117,5 +121,11 @@ public class InformationFragment extends BaseFragment {
                 setTabSelection(2);
                 break;
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 }

@@ -1,11 +1,15 @@
 package com.zxms.application;
 
 import android.app.Application;
+import android.app.Service;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Vibrator;
 
+import com.baidu.mapapi.SDKInitializer;
 import com.umeng.socialize.Config;
 import com.umeng.socialize.PlatformConfig;
 import com.umeng.socialize.UMShareAPI;
+import com.zxms.baidu.service.LocationService;
 import com.zxms.dao.DaoMaster;
 import com.zxms.dao.DaoSession;
 
@@ -20,6 +24,8 @@ public class MyApplication extends Application{
     public SQLiteDatabase db;
     public DaoMaster.DevOpenHelper helper;
     public DaoMaster daoMaster;
+    public LocationService locationService;
+    public Vibrator mVibrator;
 
     @Override
     public void onCreate() {
@@ -30,6 +36,12 @@ public class MyApplication extends Application{
         UMShareAPI.get(this);
         JPushInterface.setDebugMode(true); 	// 设置开启日志,发布时请关闭日志
         JPushInterface.init(this);     		// 初始化 JPush
+        /***
+         * 初始化定位sdk，建议在Application中创建
+         */
+        locationService = new LocationService(getApplicationContext());
+        mVibrator =(Vibrator)getApplicationContext().getSystemService(Service.VIBRATOR_SERVICE);
+        SDKInitializer.initialize(getApplicationContext());
         setupDatabase();
     }
 
