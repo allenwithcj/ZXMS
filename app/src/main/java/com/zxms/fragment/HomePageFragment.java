@@ -308,7 +308,7 @@ public class HomePageFragment extends Fragment implements
     }
 
     private void startRotateAnimation(RotateAnimation animation, ImageView menu_add_btn) {
-        animation.setDuration(500);
+        animation.setDuration(200);
         animation.setFillAfter(true);
         menu_add_btn.startAnimation(animation);
     }

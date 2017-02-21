@@ -12,14 +12,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -66,9 +64,9 @@ import butterknife.Unbinder;
  */
 public class MyFragment extends Fragment implements View.OnClickListener {
     private static final String TAG = "MyFragment";
-    private static final int REQUEST_CAPTURE = 100;//请求相机
-    private static final int REQUEST_PICK = 101;//请求相册
-    private static final int REQUEST_CROP_PHOTO = 102;//请求截图
+    private static final int REQUEST_CAPTURE = 0x1001;//请求相机
+    private static final int REQUEST_PICK = 0x1002;//请求相册
+    private static final int REQUEST_CROP_PHOTO = 0x1003;//请求截图
     @BindView(R.id.set)
     ImageView mSet;
     @BindView(R.id.user_img)
@@ -444,20 +442,15 @@ public class MyFragment extends Fragment implements View.OnClickListener {
 
 
     private void gotoPhoto() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(Intent.createChooser(intent, "请选择图片"), REQUEST_PICK);
     }
 
     private void gotoCarema() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (Build.VERSION.SDK_INT < 24) {
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(tempFile));
-        } else {
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(getActivity(), getActivity().getPackageName() + ".provider", tempFile));
-        }
-        if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
-            startActivityForResult(intent, REQUEST_CAPTURE);
-        }
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, tempFile);
+//                FileProvider.getUriForFile(getActivity(), getActivity().getPackageName() + ".provider", tempFile));
+        startActivityForResult(intent, REQUEST_CAPTURE);
     }
 
     @Override

@@ -9,9 +9,9 @@
     <RelativeLayout
         android:id="@+id/top_bar"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_alignParentTop="true"
-        android:background="@android:color/white">
+        android:layout_height="50dp"
+        android:background="@color/blue"
+        android:layout_alignParentTop="true">
 
         <ImageView
             android:id="@+id/img_back"
@@ -32,7 +32,7 @@
             android:maxWidth="200dp"
             android:singleLine="true"
             android:text="照片"
-            android:textColor="@color/T_26"
+            android:textColor="@color/white"
             android:textSize="18sp" />
 
         <TextView
@@ -56,14 +56,6 @@
         android:layout_above="@+id/bottom_bar"
         android:layout_below="@id/top_bar"/>
 
-
-    <com.zxms.imgselector.widget.PhotoBunketList
-        android:id="@+id/photo_bunket_list_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/bottom_bar"
-        android:layout_below="@id/top_bar"
-        android:visibility="invisible" />
 
     <RelativeLayout
         android:id="@+id/bottom_bar"
@@ -92,5 +84,14 @@
             android:text="完成(10)"
             android:textSize="16sp" />
     </RelativeLayout>
+
+    <com.zxms.imgselector.widget.PhotoBunketList
+        android:id="@+id/photo_bunket_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>
