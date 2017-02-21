@@ -404,8 +404,6 @@ public class MyFragment extends Fragment implements View.OnClickListener {
 
     /**
      * 打开截图界面
-     *
-     * @param uri
      */
     public void gotoClipActivity(Uri uri) {
         if (uri == null) {
@@ -420,10 +418,6 @@ public class MyFragment extends Fragment implements View.OnClickListener {
     /**
      * 根据Uri返回文件绝对路径
      * 兼容了file:///开头的 和 content://开头的情况
-     *
-     * @param context
-     * @param uri
-     * @return the file path or null
      */
     public static String getRealFilePathFromUri(final Context context, final Uri uri) {
         if (null == uri) return null;

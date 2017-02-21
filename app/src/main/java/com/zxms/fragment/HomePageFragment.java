@@ -35,6 +35,7 @@ import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.zxms.CityActivity;
 import com.zxms.MyCaptureActivity;
+import com.zxms.PicSelectorActivity;
 import com.zxms.R;
 import com.zxms.application.MyApplication;
 import com.zxms.baidu.service.LocationService;
@@ -115,6 +116,7 @@ public class HomePageFragment extends Fragment implements
     public static final int REQUEST_CODE = 102;//选择相册
     private LocationService locationService;
     private String localCity;
+    private Intent intent = new Intent();
 
     private Handler mHandler = new Handler() {
         @Override
@@ -337,7 +339,7 @@ public class HomePageFragment extends Fragment implements
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.city:
-                Intent intent = new Intent(getActivity(), CityActivity.class);
+                intent.setClass(getActivity(), CityActivity.class);
                 startActivityForResult(intent, LOCAL_CITY);
                 getActivity().overridePendingTransition(R.anim.in_right, R.anim.out_left);
                 break;
@@ -359,6 +361,12 @@ public class HomePageFragment extends Fragment implements
                 } else {
                     gotoCarema();
                 }
+                break;
+
+            case R.id.rebelion_layout:
+                dismissPopuView();
+                intent.setClass(getActivity(), PicSelectorActivity.class);
+                startActivity(intent);
                 break;
         }
     }

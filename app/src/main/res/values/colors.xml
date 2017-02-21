@@ -12,4 +12,7 @@
     <color name="actionsheet_blue">#037BFF</color>
     <color name="actionsheet_red">#FD4A2E</color>
     <color name="actionsheet_gray">#8F8F8F</color>
+    <color name="bg_gray_alt">#eeeeee</color>
+    <color name="T_26">#262626</color>
+    <color name="T_F50">#FF5060</color>
 </resources>

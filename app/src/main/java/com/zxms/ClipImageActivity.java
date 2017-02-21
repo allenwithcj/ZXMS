@@ -28,8 +28,8 @@ public class ClipImageActivity extends BaseActivity implements View.OnClickListe
     private static final String TAG = "ClipImageActivity";
     @BindView(R.id.iv_back)
     ImageView mIvBack;
-    @BindView(R.id.clipViewLayout2)
-    ClipViewLayout mClipViewLayout2;
+    @BindView(R.id.clipViewLayout)
+    ClipViewLayout mClipViewLayout;
     @BindView(R.id.btn_cancel)
     TextView mBtnCancel;
     @BindView(R.id.bt_ok)
@@ -47,8 +47,9 @@ public class ClipImageActivity extends BaseActivity implements View.OnClickListe
     protected void onResume() {
         super.onResume();
         //设置图片资源
-        mClipViewLayout2.setImageSrc(getIntent().getData());
+        mClipViewLayout.setImageSrc(getIntent().getData());
     }
+
 
     /**
      * 生成Uri并且通过setResult返回给打开的activity
@@ -56,7 +57,7 @@ public class ClipImageActivity extends BaseActivity implements View.OnClickListe
     private void generateUriAndReturn() {
         //调用返回剪切图
         Bitmap zoomedCropBitmap;
-        zoomedCropBitmap = mClipViewLayout2.clip();
+        zoomedCropBitmap = mClipViewLayout.clip();
         if (zoomedCropBitmap == null) {
             Log.e("android", "zoomedCropBitmap == null");
             return;
@@ -87,7 +88,7 @@ public class ClipImageActivity extends BaseActivity implements View.OnClickListe
         }
     }
 
-    @OnClick({R.id.iv_back,R.id.btn_cancel, R.id.bt_ok})
+    @OnClick({R.id.iv_back, R.id.btn_cancel, R.id.bt_ok})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.iv_back:

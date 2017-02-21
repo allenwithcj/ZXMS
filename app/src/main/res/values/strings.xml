@@ -26,7 +26,7 @@
     <string name="hot_city">热门城市</string>
     <string name="current_city">当前定位城市</string>
     <string name="mian_city">主要城市</string>
-    ：<string name="choice">选择城市：</string>
+    <string name="choice">选择城市：</string>
     <string name="localing">定位中...</string>
     <!--umeng-->
     <string name="umeng_sharebutton_copy">复制文本</string>

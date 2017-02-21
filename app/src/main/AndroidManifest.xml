@@ -41,9 +41,10 @@
     <!-- zxing -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.FLASHLIGHT" />
+
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
-    <!--baidu map-->
+    <!-- baidu map -->
     <uses-permission android:name="com.android.launcher.permission.READ_SETTINGS" />
 
     <application
@@ -53,20 +54,21 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <!--百度地图-->
+
+        <!-- 百度地图 -->
         <service
             android:name="com.baidu.location.f"
             android:enabled="true"
-            android:process=":remote" >
+            android:process=":remote">
             <intent-filter>
-                <action android:name="com.baidu.location.service_v2.2" >
-                </action>
+                <action android:name="com.baidu.location.service_v2.2"></action>
             </intent-filter>
         </service>
+
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="cbMkpExBu69H0VCaxNGgQBpqeBPf9k62" />
-        <!--拍照权限-->
+        <!-- 拍照权限 -->
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.zxms.provider"
@@ -233,7 +235,11 @@
         <activity android:name=".BaseActivity" />
         <activity android:name=".MyCaptureActivity" />
         <activity android:name=".ClipImageActivity" />
-        <activity android:name=".CityActivity"></activity>
+        <activity android:name=".CityActivity" />
+        <activity android:name=".PicSelectorActivity"/>
+        <activity android:name=".imgselector.view.BasePhotoPickupActivity"/>
+        <activity android:name=".imgselector.view.ImageLookActivity"/>
+        <activity android:name=".imgselector.view.PhotoPickupActivity"/>
     </application>
 
 </manifest>
