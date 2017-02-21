@@ -10,7 +10,7 @@
         android:id="@+id/top_bar"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="@color/blue"
+        android:background="@color/white"
         android:layout_alignParentTop="true">
 
         <ImageView
@@ -32,7 +32,7 @@
             android:maxWidth="200dp"
             android:singleLine="true"
             android:text="照片"
-            android:textColor="@color/white"
+            android:textColor="@color/T_26"
             android:textSize="18sp" />
 
         <TextView
