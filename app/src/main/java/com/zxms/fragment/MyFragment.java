@@ -2,22 +2,23 @@ package com.zxms.fragment;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -44,11 +45,12 @@ import com.zxms.model.Defaultcontent;
 import com.zxms.model.My;
 import com.zxms.utils.AsyncImageLoader;
 import com.zxms.utils.Constants;
-import com.zxms.utils.Tools;
 import com.zxms.view.ActionSheetDialog;
 import com.zxms.view.CircleImageView;
+import com.zxms.view.ClipViewLayout;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -64,9 +66,10 @@ import butterknife.Unbinder;
  */
 public class MyFragment extends Fragment implements View.OnClickListener {
     private static final String TAG = "MyFragment";
-    private static final int REQUEST_CAPTURE = 0x1001;//请求相机
-    private static final int REQUEST_PICK = 0x1002;//请求相册
-    private static final int REQUEST_CROP_PHOTO = 0x1003;//请求截图
+    public static final int TAKE_PHOTO = 0x1001;
+    public static final int CHOOSE_PHOTO = 0x1002;
+    private static final int REQUEST_CROP_PHOTO = 0x1003;
+    public static final int WRITE_EXTERNAL_STORAGE_REQUEST_CODE = 0;
     @BindView(R.id.set)
     ImageView mSet;
     @BindView(R.id.user_img)
@@ -91,8 +94,8 @@ public class MyFragment extends Fragment implements View.OnClickListener {
     private ShareAction mShareAction;
     private LoginReciver loginReciver;
     private File tempFile;
-    private View view;
     private Unbinder unbinder;
+    private Uri imageUri;
 
     @Nullable
     @Override
@@ -178,16 +181,15 @@ public class MyFragment extends Fragment implements View.OnClickListener {
 
                         @Override
                         public void onClick(int which) {
-                            // 相册中选择
                             //权限判断
                             if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
                                     != PackageManager.PERMISSION_GRANTED) {
                                 //申请READ_EXTERNAL_STORAGE权限
-//                                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-//                                        WRITE_EXTERNAL_STORAGE_REQUEST_CODE);
+                                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                        WRITE_EXTERNAL_STORAGE_REQUEST_CODE);
                             } else {
                                 //跳转到调用系统图库
-                                gotoPhoto();
+                                openAlbum();
                             }
                         }
                     })
@@ -195,10 +197,29 @@ public class MyFragment extends Fragment implements View.OnClickListener {
 
                         @Override
                         public void onClick(int which) {
-                            gotoCarema();
+                            takePhoto();
                         }
                     }).show();
         }
+    }
+
+    private void openAlbum() {
+        Intent intent = new Intent(Intent.ACTION_PICK,MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent,CHOOSE_PHOTO);
+    }
+
+    private void takePhoto() {
+        //判断SDK
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+            imageUri = FileProvider.getUriForFile(getContext(),
+                    getContext().getPackageName()+".fileprovider",tempFile);
+        }else{
+            imageUri = Uri.fromFile(tempFile);
+        }
+        //启动相机程序
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);;
+        intent.putExtra(MediaStore.EXTRA_OUTPUT,imageUri);
+        startActivityForResult(intent,TAKE_PHOTO);
     }
 
     @OnClick({R.id.set, R.id.user_img, R.id.goLogin_btn})
@@ -320,27 +341,35 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         @Override
         public void onComplete(SHARE_MEDIA share_media, int i, Map<String, String> map) {
             if (map != null) {
-                Toast.makeText(getActivity(), "登录成功", Toast.LENGTH_LONG).show();
                 Constants.isLogin = true;
                 mGoLoginBtn.setVisibility(View.GONE);
                 mName.setVisibility(View.VISIBLE);
                 mName.setText(map.get("name"));
                 Constants.userName = mName.getText().toString();
-                tempFile = new File(Tools.checkDirPath(Environment.getExternalStorageDirectory().getPath() + "/image/"),
-                        Constants.userName + ".jpg");
+                //创建存储头像的目录
+                tempFile = new File(getActivity().getExternalCacheDir(),Constants.userName + ".jpg");
+                try {
+                    if(tempFile.exists()){
+                        tempFile.delete();
+                    }
+                    tempFile.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 asyncImageLoader.loadDrawable(map.get("iconurl"), new AsyncImageLoader.ImageCallback() {
                     @Override
                     public void imageLoaded(Drawable imageDrawable, String imageUrl) {
                         mUserImg.setImageDrawable(imageDrawable);
                     }
                 });
+                Toast.makeText(getActivity(), "登录成功", Toast.LENGTH_LONG).show();
 
             }
         }
 
         @Override
         public void onError(SHARE_MEDIA share_media, int i, Throwable throwable) {
-
+            Toast.makeText(getActivity(), "登录失败", Toast.LENGTH_LONG).show();
         }
 
         @Override
@@ -368,42 +397,45 @@ public class MyFragment extends Fragment implements View.OnClickListener {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         UMShareAPI.get(getActivity()).onActivityResult(requestCode, resultCode, data);
-        if (resultCode == getActivity().RESULT_OK) {
             switch (requestCode) {
-                case REQUEST_CAPTURE: //调用系统相机返回
-                    if (data != null) {
-                        gotoClipActivity(Uri.fromFile(tempFile));
+                //拍照
+                case TAKE_PHOTO:
+                    if(resultCode == getActivity().RESULT_OK) {
+                        takeZoom(Uri.fromFile(tempFile));
                     }
                     break;
-                case REQUEST_PICK:  //调用系统相册返回
-                    if (data != null) {
-                        Uri uri = data.getData();
-                        gotoClipActivity(uri);
-                    }
-                    break;
-                case REQUEST_CROP_PHOTO:  //剪切图片返回
-                    if (data != null) {
-                        final Uri uri = data.getData();
-                        if (uri == null) {
-                            return;
+                //相册
+                case CHOOSE_PHOTO:
+                    if(resultCode == getActivity().RESULT_OK) {
+                        if (data != null) {
+                            Uri uri = data.getData();
+                            takeZoom(uri);
                         }
-                        String cropImagePath = getRealFilePathFromUri(getActivity(), uri);
-                        Bitmap bitMap = BitmapFactory.decodeFile(cropImagePath);
-                        mUserImg.setImageBitmap(bitMap);
-                        //此处后面可以将bitMap转为二进制上传后台网络
-                        //......
                     }
-
+                    break;
+                //剪切
+                case REQUEST_CROP_PHOTO:
+                    if(resultCode == getActivity().RESULT_OK) {
+                        if (data != null) {
+                            final Uri uri = data.getData();
+                            if (uri == null) {
+                                return;
+                            }
+                            String cropImagePath = ClipViewLayout.getRealFilePathFromUri(getActivity(),uri);
+                            Bitmap bitMap = BitmapFactory.decodeFile(cropImagePath);
+                            mUserImg.setImageBitmap(bitMap);
+                            //此处后面可以将bitMap转为二进制上传后台网络
+                        }
+                    }
                     break;
             }
-        }
 
     }
 
     /**
-     * 打开截图界面
+     * 跳转裁剪界面
      */
-    public void gotoClipActivity(Uri uri) {
+    public void takeZoom(Uri uri) {
         if (uri == null) {
             return;
         }
@@ -413,45 +445,6 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         startActivityForResult(intent, REQUEST_CROP_PHOTO);
     }
 
-    /**
-     * 根据Uri返回文件绝对路径
-     * 兼容了file:///开头的 和 content://开头的情况
-     */
-    public static String getRealFilePathFromUri(final Context context, final Uri uri) {
-        if (null == uri) return null;
-        final String scheme = uri.getScheme();
-        String data = null;
-        if (scheme == null)
-            data = uri.getPath();
-        else if (ContentResolver.SCHEME_FILE.equals(scheme)) {
-            data = uri.getPath();
-        } else if (ContentResolver.SCHEME_CONTENT.equals(scheme)) {
-            Cursor cursor = context.getContentResolver().query(uri, new String[]{MediaStore.Images.ImageColumns.DATA}, null, null, null);
-            if (null != cursor) {
-                if (cursor.moveToFirst()) {
-                    int index = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-                    if (index > -1) {
-                        data = cursor.getString(index);
-                    }
-                }
-                cursor.close();
-            }
-        }
-        return data;
-    }
-
-
-    private void gotoPhoto() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(Intent.createChooser(intent, "请选择图片"), REQUEST_PICK);
-    }
-
-    private void gotoCarema() {
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, tempFile);
-//                FileProvider.getUriForFile(getActivity(), getActivity().getPackageName() + ".provider", tempFile));
-        startActivityForResult(intent, REQUEST_CAPTURE);
-    }
 
     @Override
     public void onDestroy() {
@@ -460,4 +453,16 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         getActivity().unregisterReceiver(loginReciver);
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode){
+            case WRITE_EXTERNAL_STORAGE_REQUEST_CODE:
+                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    takePhoto();
+                }else{
+                    Toast.makeText(getActivity(),"您拒绝了权限",Toast.LENGTH_SHORT).show();
+                }
+                break;
+        }
+    }
 }

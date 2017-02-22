@@ -8,7 +8,9 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
@@ -61,6 +63,7 @@ public class HomePageFragment extends Fragment implements
         SwipeRefreshLayout.OnRefreshListener, View.OnClickListener {
     private static final String TAG = "HomePageFragment";
     public static final int LOCAL_CITY = 1001;
+    public static final int REQUEST_CAMERA = 1002;
     @BindView(R.id.menu_add_btn)
     ImageView mMenuAddBtn;
     @BindView(R.id.city)
@@ -356,8 +359,8 @@ public class HomePageFragment extends Fragment implements
                 if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA)
                         != PackageManager.PERMISSION_GRANTED) {
                     //申请CAMERA权限
-//                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CAMERA},
-//                            REQUEST_CAMERA);
+                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CAMERA},
+                            REQUEST_CAMERA);
                 } else {
                     gotoCarema();
                 }
@@ -619,4 +622,19 @@ public class HomePageFragment extends Fragment implements
             }
         }
     };
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+            switch (requestCode){
+                case REQUEST_CAMERA:
+                    if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                        gotoCarema();
+                    }else{
+                        Toast.makeText(getActivity(),"您拒绝了权限",Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+            }
+    }
+
+
 }
