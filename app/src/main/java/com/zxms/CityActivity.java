@@ -146,7 +146,7 @@ public class CityActivity extends BaseActivity implements View.OnClickListener {
                 break;
             case R.id.btn_city_name:
                 String city = btn_city_name.getText().toString();
-                if (!localCity.equals(getString(R.string.localing))) {
+                if (!city.equals(getString(R.string.localing))) {
                     choiceCity(city);
                 }
                 break;
@@ -315,9 +315,6 @@ public class CityActivity extends BaseActivity implements View.OnClickListener {
 
     /**
      * 城市数据排序
-     *
-     * @param date
-     * @return
      */
     private List<City> sortCities(String[] date) {
         List<City> mSortList = new ArrayList<>();

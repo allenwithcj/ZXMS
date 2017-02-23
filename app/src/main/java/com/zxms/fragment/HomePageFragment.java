@@ -1,7 +1,10 @@
 package com.zxms.fragment;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -64,6 +67,7 @@ public class HomePageFragment extends Fragment implements
     private static final String TAG = "HomePageFragment";
     public static final int LOCAL_CITY = 1001;
     public static final int REQUEST_CAMERA = 1002;
+    public static HomePageFragment instance;
     @BindView(R.id.menu_add_btn)
     ImageView mMenuAddBtn;
     @BindView(R.id.city)
@@ -120,23 +124,33 @@ public class HomePageFragment extends Fragment implements
     private LocationService locationService;
     private String localCity;
     private Intent intent = new Intent();
+    private LocationReciver locationReciver;
 
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             mViewPagerAdv.setCurrentItem(mViewPagerAdv.getCurrentItem() + 1);
-            mHandler.sendEmptyMessageDelayed(0, 2000);
+            mHandler.sendEmptyMessageDelayed(0, Constants.TIME);
         }
     };
     private View view;
     private Unbinder unbinder;
+
+    public static HomePageFragment getInstance(){
+        if(instance == null){
+            instance = new HomePageFragment();
+        }
+        return instance;
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_homepage, container, false);
         unbinder = ButterKnife.bind(this, view);
+        locationReciver =new LocationReciver();
+        getActivity().registerReceiver(locationReciver,new IntentFilter(Constants.LOCATION));
         initAdvDate();
         initMenuDate();
         initView(view);
@@ -146,11 +160,17 @@ public class HomePageFragment extends Fragment implements
         return view;
     }
 
-    private void startLocation() {
-        locationService = MyApplication.getInstances().locationService;
-        locationService.registerListener(mListener);
-        locationService.setLocationOption(locationService.getDefaultLocationClientOption());
-        locationService.start();
+    public void startLocation() {
+        if(ContextCompat.checkSelfPermission(getActivity(),Manifest.permission.ACCESS_COARSE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.ACCESS_COARSE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED){
+            locationService = MyApplication.getInstances().locationService;
+            locationService.registerListener(mListener);
+            locationService.setLocationOption(locationService.getDefaultLocationClientOption());
+            locationService.start();
+        }
+
     }
 
     /**
@@ -165,7 +185,7 @@ public class HomePageFragment extends Fragment implements
     }
 
     /**
-     * 加载菜单页面数据
+     * 加载小图标菜单
      */
     private void initMenuDate() {
         homePageMenuList = new ArrayList<HomePageMenu>();
@@ -429,9 +449,9 @@ public class HomePageFragment extends Fragment implements
                             } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
                                 mHandler.removeMessages(0);
                             } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                                mHandler.sendEmptyMessageDelayed(0, 2000);
+                                mHandler.sendEmptyMessageDelayed(0, Constants.TIME);
                             } else if (event.getAction() == MotionEvent.ACTION_CANCEL) {
-                                mHandler.sendEmptyMessageDelayed(0, 2000);
+                                mHandler.sendEmptyMessageDelayed(0, Constants.TIME);
                             }
                             return false;
                         }
@@ -574,7 +594,7 @@ public class HomePageFragment extends Fragment implements
     @Override
     public void onResume() {
         super.onResume();
-        mHandler.sendEmptyMessageDelayed(0, 2000);
+        mHandler.sendEmptyMessage(0);
     }
 
     private void gotoCarema() {
@@ -602,8 +622,16 @@ public class HomePageFragment extends Fragment implements
     @Override
     public void onPause() {
         super.onPause();
+
+    }
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         locationService.unregisterListener(mListener); //注销掉监听
         locationService.stop(); //停止定位服务
+        getActivity().unregisterReceiver(locationReciver);
     }
 
     Handler handler = new Handler() {
@@ -636,5 +664,13 @@ public class HomePageFragment extends Fragment implements
             }
     }
 
+    class LocationReciver extends BroadcastReceiver{
 
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction().equals(Constants.LOCATION)){
+                startLocation();
+            }
+        }
+    }
 }

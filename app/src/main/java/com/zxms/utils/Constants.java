@@ -5,8 +5,10 @@ package com.zxms.utils;
  */
 
 public class Constants {
+    public static final String THIRDPARTYLOGIN = "thirdPartyLogin";
+    public static final String LOCATION = "location";
     public static boolean isLogin = false;
     public static String userName = "";
-    public static final String THIRDPARTYLOGIN = "thirdPartyLogin";
     public static String localCity = "";
+    public static int TIME = 3000;
 }

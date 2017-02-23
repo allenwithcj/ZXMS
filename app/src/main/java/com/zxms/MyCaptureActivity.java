@@ -99,8 +99,7 @@ public class MyCaptureActivity extends BaseActivity implements View.OnClickListe
     }
 
     private void gotoPhoto() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
         startActivityForResult(intent, REQUEST_IMAGE);
     }
