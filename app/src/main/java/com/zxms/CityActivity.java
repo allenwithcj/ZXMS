@@ -57,7 +57,7 @@ public class CityActivity extends BaseActivity implements View.OnClickListener {
     private MyHotCityAdapter hotAdapter;
     private LocationService locationService;
     private TextView choice_city_name;
-    private String localCity;
+    private String locationCity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,9 +122,9 @@ public class CityActivity extends BaseActivity implements View.OnClickListener {
         choice_city_name = (TextView) headView.findViewById(R.id.choice_city_name);
         btn_city_name.setOnClickListener(this);
 
-        localCity = Constants.localCity;
-        if (!"".equals(localCity) || !TextUtils.isEmpty(localCity)) {
-            choice_city_name.setText(localCity);
+        locationCity = Constants.locationCity;
+        if (!"".equals(locationCity) || !TextUtils.isEmpty(locationCity)) {
+            choice_city_name.setText(locationCity);
         }
         GridLayoutManager gdm = new GridLayoutManager(this, 3);
         gv_hot_city.setLayoutManager(gdm);
@@ -282,7 +282,7 @@ public class CityActivity extends BaseActivity implements View.OnClickListener {
 
     private void choiceCity(String city) {
         if (!TextUtils.isEmpty(city) || !"".equals(city)) {
-            Constants.localCity = city;
+            Constants.locationCity = city;
             Intent intent = new Intent();
             intent.putExtra("city", city);
             setResult(HomePageFragment.LOCAL_CITY, intent);
@@ -303,7 +303,8 @@ public class CityActivity extends BaseActivity implements View.OnClickListener {
             mSortList.clear();
             for (City sortModel : cities) {
                 String name = sortModel.getName();
-                if (name.toUpperCase().indexOf(filterStr.toString().toUpperCase()) != -1 || PinyinUtils.getPingYin(name).toUpperCase().startsWith(filterStr.toString().toUpperCase())) {
+                if (name.toUpperCase().indexOf(filterStr.toString().toUpperCase()) != -1 ||
+                        PinyinUtils.getPingYin(name).toUpperCase().startsWith(filterStr.toString().toUpperCase())) {
                     mSortList.add(sortModel);
                 }
             }

@@ -9,6 +9,6 @@ public class Constants {
     public static final String LOCATION = "location";
     public static boolean isLogin = false;
     public static String userName = "";
-    public static String localCity = "";
+    public static String locationCity = "";
     public static int TIME = 3000;
 }

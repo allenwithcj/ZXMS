@@ -622,6 +622,8 @@ public class HomePageFragment extends Fragment implements
     @Override
     public void onPause() {
         super.onPause();
+        locationService.unregisterListener(mListener); //注销掉监听
+        locationService.stop(); //停止定位服务
 
     }
 
@@ -629,8 +631,6 @@ public class HomePageFragment extends Fragment implements
     @Override
     public void onDestroy() {
         super.onDestroy();
-        locationService.unregisterListener(mListener); //注销掉监听
-        locationService.stop(); //停止定位服务
         getActivity().unregisterReceiver(locationReciver);
     }
 
