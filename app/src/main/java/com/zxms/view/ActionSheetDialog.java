@@ -20,6 +20,9 @@ import com.zxms.R;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 头像选择底部弹出菜单
+ */
 public class ActionSheetDialog {
 	private Context context;
 	private Dialog dialog;

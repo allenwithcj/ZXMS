@@ -216,6 +216,7 @@ public class HomePageFragment extends Fragment implements
     }
 
     private void initView(final View view) {
+        mSwipeLayout.setOnRefreshListener(this);
         indicator_menu_imgs = new ImageView[totalPage];
         rotate_right = new RotateAnimation(0f, 45f, Animation.RELATIVE_TO_SELF,
                 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
@@ -354,7 +355,12 @@ public class HomePageFragment extends Fragment implements
 
     @Override
     public void onRefresh() {
-
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mSwipeLayout.setRefreshing(false);
+            }
+        },3000);
     }
 
 
@@ -608,7 +614,7 @@ public class HomePageFragment extends Fragment implements
         public void onReceiveLocation(BDLocation location) {
             if (null != location && location.getLocType() != BDLocation.TypeServerError) {
                 localCity = location.getCity();
-                Constants.localCity = localCity;
+                Constants.locationCity = localCity;
                 handler.sendMessage(handler.obtainMessage(0, localCity));
             }
         }
@@ -622,8 +628,10 @@ public class HomePageFragment extends Fragment implements
     @Override
     public void onPause() {
         super.onPause();
-        locationService.unregisterListener(mListener); //注销掉监听
-        locationService.stop(); //停止定位服务
+        if(locationService != null){
+            locationService.unregisterListener(mListener); //注销掉监听
+            locationService.stop(); //停止定位服务
+        }
 
     }
 
@@ -631,6 +639,7 @@ public class HomePageFragment extends Fragment implements
     @Override
     public void onDestroy() {
         super.onDestroy();
+
         getActivity().unregisterReceiver(locationReciver);
     }
 

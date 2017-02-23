@@ -413,8 +413,4 @@ public class CityActivity extends BaseActivity implements View.OnClickListener {
         locationService.stop(); //停止定位服务
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
 }
