@@ -44,7 +44,7 @@ public class ActionSheetDialog {
 	public ActionSheetDialog builder() {
 		// 获取Dialog布局
 		View view = LayoutInflater.from(context).inflate(
-				R.layout.view_actionsheet, null);
+				R.layout.activity_view_actionsheet, null);
 
 		// 设置Dialog最小宽度为屏幕宽度
 		view.setMinimumWidth(display.getWidth());

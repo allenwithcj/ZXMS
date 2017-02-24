@@ -42,7 +42,7 @@ public class MyCaptureActivity extends BaseActivity implements View.OnClickListe
         context = MyCaptureActivity.this;
         captureFragment = new CaptureFragment();
         // 为二维码扫描界面设置定制化界面
-        CodeUtils.setFragmentArgs(captureFragment, R.layout.my_camera);
+        CodeUtils.setFragmentArgs(captureFragment, R.layout.activity_my_camera);
         captureFragment.setAnalyzeCallback(analyzeCallback);
         getSupportFragmentManager().beginTransaction().replace(R.id.fl_my_container, captureFragment).commit();
     }

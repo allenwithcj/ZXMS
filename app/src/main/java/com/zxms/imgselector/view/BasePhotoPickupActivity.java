@@ -140,7 +140,7 @@ public class BasePhotoPickupActivity extends Activity {
 
     private void initViews() {
         mLayoutInflater = LayoutInflater.from(this);
-        setContentView(R.layout.activity_base_photo_pickup_layout);
+        setContentView(R.layout.activity_photos_pickup);
 
         findViewById(R.id.img_back).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -412,9 +412,9 @@ public class BasePhotoPickupActivity extends Activity {
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup rootV, int viewType) {
             // TODO Auto-generated method stub
             if (viewType == 0) {
-                return new HeaderViewHolder(mLayoutInflater.inflate(R.layout.photo_preview_item_head, rootV, false));
+                return new HeaderViewHolder(mLayoutInflater.inflate(R.layout.activity_photo_preview_item_head, rootV, false));
             } else {
-                return new ItemViewHolder(mLayoutInflater.inflate(R.layout.photo_preview_item, rootV, false));
+                return new ItemViewHolder(mLayoutInflater.inflate(R.layout.activity_photo_preview_item, rootV, false));
             }
         }
 

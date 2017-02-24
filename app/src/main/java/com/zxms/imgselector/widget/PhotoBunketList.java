@@ -44,7 +44,7 @@ public final class PhotoBunketList extends RelativeLayout {
 
     public PhotoBunketList(Context context, AttributeSet attrs) {
         super(context, attrs);
-        LayoutInflater.from(context).inflate(R.layout.widget_photo_bunket_list, this);
+        LayoutInflater.from(context).inflate(R.layout.activity_widget_photo_bunket_list, this);
     }
 
     @Override
@@ -262,7 +262,7 @@ public final class PhotoBunketList extends RelativeLayout {
         }
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup rootV, int viewType) {
-            return new ItemViewHolder(LayoutInflater.from(getContext()).inflate(R.layout.bunket_item,rootV,false));
+            return new ItemViewHolder(LayoutInflater.from(getContext()).inflate(R.layout.activity_bunket_item,rootV,false));
         }
         @Override
         public void onViewRecycled(RecyclerView.ViewHolder holder){

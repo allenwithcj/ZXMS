@@ -83,7 +83,7 @@ public class PhotoPresenter extends BasePhotoPresenter implements SimpleGrid.Cal
         }
         // 如果未满,第一个位置显示照相机
         if (position == mSelectedImgPros.size() && mSelectedImgPros.size() < MAX_SEL_PHOTOS) {
-            final View view = LayoutInflater.from(mContext).inflate(R.layout.item_photo_preview_with_upload, viewGroup,
+            final View view = LayoutInflater.from(mContext).inflate(R.layout.activity_photos_preview_with_upload_item, viewGroup,
                     false);
             final ImageView ivAdd = (ImageView) view.findViewById(R.id.iv_add);
             ivAdd.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -106,7 +106,7 @@ public class PhotoPresenter extends BasePhotoPresenter implements SimpleGrid.Cal
         }
 
         // 获取实际的数据索引，未满的时候需要减去1，因为第一个是照相机
-        final View itemV = LayoutInflater.from(mContext).inflate(R.layout.item_photo_preview_with_delete, viewGroup, false);
+        final View itemV = LayoutInflater.from(mContext).inflate(R.layout.activity_photos_preview_with_delete_item, viewGroup, false);
         ImageView ivBg = (ImageView) itemV.findViewById(R.id.sel_cover);
         final TextView tvUploadStatus = (TextView) itemV.findViewById(R.id.tv_upload_status);
         final ImageView img = (ImageView) itemV.findViewById(R.id.img);
