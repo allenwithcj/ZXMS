@@ -1,5 +1,7 @@
 package com.zxms.utils;
 
+import com.zxms.R;
+
 /**
  * Created by hp on 2017/2/15.
  */
@@ -11,4 +13,5 @@ public class Constants {
     public static String userName = "";
     public static String locationCity = "";
     public static int TIME = 3000;
+    public static final int mColor = R.color.blue;
 }

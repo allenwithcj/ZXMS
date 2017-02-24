@@ -13,6 +13,7 @@ import com.umeng.socialize.UMAuthListener;
 import com.umeng.socialize.UMShareAPI;
 import com.umeng.socialize.bean.SHARE_MEDIA;
 import com.zxms.utils.Constants;
+import com.zxms.utils.StatusBarUtil;
 
 import java.util.Map;
 
@@ -108,5 +109,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                 overridePendingTransition(R.anim.in_left, R.anim.out_right);
                 break;
         }
+    }
+
+    @Override
+    public void setStatusBarColor() {
+        StatusBarUtil.setColor(this,getResources().getColor(Constants.mColor),0);
     }
 }

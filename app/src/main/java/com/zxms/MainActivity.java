@@ -23,6 +23,7 @@ import com.zxms.fragment.ModuleFragment;
 import com.zxms.fragment.MyFragment;
 import com.zxms.utils.ActivityControl;
 import com.zxms.utils.Constants;
+import com.zxms.utils.StatusBarUtil;
 
 import java.util.ArrayList;
 
@@ -300,5 +301,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 setTabSelection(4);
                 break;
         }
+    }
+
+    @Override
+    public void setStatusBarColor() {
+        StatusBarUtil.setColor(this,getResources().getColor(Constants.mColor),0);
     }
 }

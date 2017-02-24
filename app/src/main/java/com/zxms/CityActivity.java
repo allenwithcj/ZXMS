@@ -26,6 +26,7 @@ import com.zxms.model.City;
 import com.zxms.utils.Constants;
 import com.zxms.utils.PinyinComparator;
 import com.zxms.utils.PinyinUtils;
+import com.zxms.utils.StatusBarUtil;
 import com.zxms.view.EditTextWithDel;
 import com.zxms.view.SideBar;
 
@@ -411,6 +412,11 @@ public class CityActivity extends BaseActivity implements View.OnClickListener {
         super.onDestroy();
         locationService.unregisterListener(mListener); //注销掉监听
         locationService.stop(); //停止定位服务
+    }
+
+    @Override
+    public void setStatusBarColor() {
+        StatusBarUtil.setColor(this,getResources().getColor(Constants.mColor),0);
     }
 
 }

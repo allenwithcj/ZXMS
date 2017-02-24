@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.zxms.utils.Constants;
+import com.zxms.utils.StatusBarUtil;
 import com.zxms.view.ClipViewLayout;
 
 import java.io.File;
@@ -101,5 +102,10 @@ public class ClipImageActivity extends BaseActivity implements View.OnClickListe
                 generateUriAndReturn();
                 break;
         }
+    }
+
+    @Override
+    public void setStatusBarColor() {
+        StatusBarUtil.setColor(this,getResources().getColor(Constants.mColor),0);
     }
 }

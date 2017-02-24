@@ -7,6 +7,8 @@ import com.zxms.imgselector.presenter.PhotoPresenter;
 import com.zxms.imgselector.view.ImageLookActivity;
 import com.zxms.imgselector.view.PhotoPickupActivity;
 import com.zxms.imgselector.widget.SimpleGrid;
+import com.zxms.utils.Constants;
+import com.zxms.utils.StatusBarUtil;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -50,5 +52,10 @@ public class PicSelectorActivity extends BaseActivity {
                 }
             }
         }
+    }
+
+    @Override
+    public void setStatusBarColor() {
+        StatusBarUtil.setColor(this,getResources().getColor(Constants.mColor),0);
     }
 }

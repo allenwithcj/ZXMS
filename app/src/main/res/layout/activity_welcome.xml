@@ -1,24 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/welcome_pic"
     android:orientation="vertical">
-<LinearLayout
-    android:id="@+id/adv_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:visibility="gone"
-    android:orientation="vertical">
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="2">
 
         <ImageView
             android:id="@+id/adv_img"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"/>
 
         <Button
             android:layout_width="60dp"
@@ -31,18 +20,16 @@
             android:background="@color/black"
             android:id="@+id/jump"
             android:visibility="gone"/>
-    </RelativeLayout>
-    <LinearLayout
+
+
+    <android.support.design.widget.CoordinatorLayout
+        android:id="@+id/view_need_offset"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-        <ProgressBar
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/progressBar" />
-        </LinearLayout>
-
-
-</LinearLayout>
-</LinearLayout>
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="27dp"
+        android:layout_marginStart="27dp">
+    </android.support.design.widget.CoordinatorLayout>
+</RelativeLayout>
