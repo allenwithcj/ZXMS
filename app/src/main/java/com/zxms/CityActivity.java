@@ -123,7 +123,7 @@ public class CityActivity extends BaseActivity implements View.OnClickListener {
         choice_city_name = (TextView) headView.findViewById(R.id.choice_city_name);
         btn_city_name.setOnClickListener(this);
 
-        locationCity = Constants.locationCity;
+        locationCity = Constants.LOCATIONCITY;
         if (!"".equals(locationCity) || !TextUtils.isEmpty(locationCity)) {
             choice_city_name.setText(locationCity);
         }
@@ -283,7 +283,7 @@ public class CityActivity extends BaseActivity implements View.OnClickListener {
 
     private void choiceCity(String city) {
         if (!TextUtils.isEmpty(city) || !"".equals(city)) {
-            Constants.locationCity = city;
+            Constants.LOCATIONCITY = city;
             Intent intent = new Intent();
             intent.putExtra("city", city);
             setResult(HomePageFragment.LOCAL_CITY, intent);
@@ -416,7 +416,7 @@ public class CityActivity extends BaseActivity implements View.OnClickListener {
 
     @Override
     public void setStatusBarColor() {
-        StatusBarUtil.setColor(this,getResources().getColor(Constants.mColor),0);
+        StatusBarUtil.setColor(this,getResources().getColor(Constants.COLOR),0);
     }
 
 }

@@ -63,7 +63,7 @@ public class ClipImageActivity extends BaseActivity implements View.OnClickListe
             Log.e("android", "zoomedCropBitmap == null");
             return;
         }
-        Uri mSaveUri = Uri.fromFile(new File(getCacheDir(), Constants.userName + ".jpg"));
+        Uri mSaveUri = Uri.fromFile(new File(getCacheDir(), Constants.USERNAME + ".jpg"));
         if (mSaveUri != null) {
             OutputStream outputStream = null;
             try {
@@ -106,6 +106,6 @@ public class ClipImageActivity extends BaseActivity implements View.OnClickListe
 
     @Override
     public void setStatusBarColor() {
-        StatusBarUtil.setColor(this,getResources().getColor(Constants.mColor),0);
+        StatusBarUtil.setColor(this,getResources().getColor(Constants.COLOR),0);
     }
 }

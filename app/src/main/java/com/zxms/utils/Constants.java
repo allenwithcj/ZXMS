@@ -9,9 +9,10 @@ import com.zxms.R;
 public class Constants {
     public static final String THIRDPARTYLOGIN = "thirdPartyLogin";
     public static final String LOCATION = "location";
-    public static boolean isLogin = false;
-    public static String userName = "";
-    public static String locationCity = "";
-    public static int TIME = 3000;
-    public static final int mColor = R.color.blue;
+    public static boolean ISLOGIN = false;
+    public static String USERNAME = "";
+    public static String LOCATIONCITY = "";
+    public static int TIME = 3000;//3秒
+    public static int ONESECOND = 1000;//1秒
+    public static final int COLOR = R.color.blue;
 }

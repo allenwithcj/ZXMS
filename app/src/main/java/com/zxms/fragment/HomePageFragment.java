@@ -614,7 +614,7 @@ public class HomePageFragment extends Fragment implements
         public void onReceiveLocation(BDLocation location) {
             if (null != location && location.getLocType() != BDLocation.TypeServerError) {
                 localCity = location.getCity();
-                Constants.locationCity = localCity;
+                Constants.LOCATIONCITY = localCity;
                 handler.sendMessage(handler.obtainMessage(0, localCity));
             }
         }

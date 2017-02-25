@@ -167,7 +167,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
      * 2.没有登录，点击则跳转到登录界面
      */
     private void goLogin() {
-        if (!Constants.isLogin) {
+        if (!Constants.ISLOGIN) {
             Intent intent = new Intent();
             intent.setClass(getActivity(), LoginActivity.class);
             startActivity(intent);
@@ -341,13 +341,13 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         @Override
         public void onComplete(SHARE_MEDIA share_media, int i, Map<String, String> map) {
             if (map != null) {
-                Constants.isLogin = true;
+                Constants.ISLOGIN = true;
                 mGoLoginBtn.setVisibility(View.GONE);
                 mName.setVisibility(View.VISIBLE);
                 mName.setText(map.get("name"));
-                Constants.userName = mName.getText().toString();
+                Constants.USERNAME = mName.getText().toString();
                 //创建存储头像的目录
-                tempFile = new File(getActivity().getExternalCacheDir(),Constants.userName + ".jpg");
+                tempFile = new File(getActivity().getExternalCacheDir(),Constants.USERNAME + ".jpg");
                 try {
                     if(tempFile.exists()){
                         tempFile.delete();

@@ -200,7 +200,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 Toast.makeText(context, "再按一次退出程序", Toast.LENGTH_SHORT).show();
                 exitTime = System.currentTimeMillis();
             } else {
-                Constants.isLogin = false;
+                Constants.ISLOGIN = false;
                 ActivityControl.finishAll();
             }
         }
@@ -305,6 +305,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     @Override
     public void setStatusBarColor() {
-        StatusBarUtil.setColor(this,getResources().getColor(Constants.mColor),0);
+        StatusBarUtil.setColor(this,getResources().getColor(Constants.COLOR),0);
     }
 }

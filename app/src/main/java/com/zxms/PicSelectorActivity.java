@@ -56,6 +56,6 @@ public class PicSelectorActivity extends BaseActivity {
 
     @Override
     public void setStatusBarColor() {
-        StatusBarUtil.setColor(this,getResources().getColor(Constants.mColor),0);
+        StatusBarUtil.setColor(this,getResources().getColor(Constants.COLOR),0);
     }
 }
