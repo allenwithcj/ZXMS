@@ -15,4 +15,7 @@ public class Constants {
     public static int TIME = 3000;//3秒
     public static int ONESECOND = 1000;//1秒
     public static final int COLOR = R.color.blue;
+
+    public static final String appid ="111111";//滴滴出行
+    public static final String secret ="222222";
 }

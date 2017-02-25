@@ -38,6 +38,7 @@ import android.widget.Toast;
 
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
+import com.sdu.didi.openapi.DIOpenSDK;
 import com.zxms.CityActivity;
 import com.zxms.MyCaptureActivity;
 import com.zxms.PicSelectorActivity;
@@ -51,6 +52,7 @@ import com.zxms.utils.Tools;
 import com.zxms.zxing.activity.CodeUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
@@ -91,8 +93,9 @@ public class HomePageFragment extends Fragment implements
     private String[] url = {"http://pic.qiantucdn.com/58pic/17/94/38/55b08aabda62f_1024.jpg",
             "http://img.zcool.cn/community/01f5ce56e112ef6ac72531cb37bec4.png@900w_1l_2o_100sh.jpg",
             "http://img.zcool.cn/community/01517657ad89500000012e7e98f5c7.jpg@900w_1l_2o_100sh.jpg"};
-    private String[] name = {"新闻", "直播", "商城", "公交", "列车", "地铁", "报料", "专题", "自行车", "微博圈", "航班", "景点", "更多"};
-    private int[] img = {R.drawable.customize_icon_news,
+    private String[] name = {"滴滴出行","新闻", "直播", "商城", "公交", "列车", "地铁", "报料", "专题", "自行车", "微博圈", "航班", "景点", "更多"};
+    private int[] img = {R.drawable.didi,
+            R.drawable.customize_icon_news,
             R.drawable.customize_icon_live,
             R.drawable.customize_icon_huigou,
             R.drawable.customize_icon_keyun,
@@ -209,7 +212,14 @@ public class HomePageFragment extends Fragment implements
             gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Toast.makeText(parent.getContext(), homePageMenuList.get(position + pageSize * finalJ).getName(), Toast.LENGTH_SHORT).show();
+                    String typeName = homePageMenuList.get(position + pageSize * finalJ).getName();
+                    //滴滴出行
+                    if(typeName.equals(name[0])){
+                        HashMap<String, String> map = new HashMap<String, String>();
+                        DIOpenSDK.showDDPage(getActivity(), map);
+                    }else{
+                        Toast.makeText(parent.getContext(), typeName, Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
         }

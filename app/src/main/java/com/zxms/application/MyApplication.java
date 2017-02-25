@@ -6,12 +6,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Vibrator;
 
 import com.baidu.mapapi.SDKInitializer;
+import com.sdu.didi.openapi.DIOpenSDK;
 import com.umeng.socialize.Config;
 import com.umeng.socialize.PlatformConfig;
 import com.umeng.socialize.UMShareAPI;
 import com.zxms.baidu.service.LocationService;
 import com.zxms.dao.DaoMaster;
 import com.zxms.dao.DaoSession;
+import com.zxms.utils.Constants;
 
 import cn.jpush.android.api.JPushInterface;
 
@@ -36,6 +38,8 @@ public class MyApplication extends Application{
         UMShareAPI.get(this);
         JPushInterface.setDebugMode(true); 	// 设置开启日志,发布时请关闭日志
         JPushInterface.init(this);     		// 初始化 JPush
+        //滴滴出行
+        DIOpenSDK.registerApp(this, Constants.appid, Constants.secret);
         /***
          * 初始化定位sdk，建议在Application中创建
          */
